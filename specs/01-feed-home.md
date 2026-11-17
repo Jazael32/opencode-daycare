@@ -1,6 +1,6 @@
 # SPEC 01 — Home Feed con paridad visual del mockup
 
-> **Estado:** Aprovado
+> **Estado:** Implementado
 > **Depende on:** ninguno
 > **Fecha:** 2026-11-16
 > **Objetivo:** Implementar la pantalla `references/pantallas/feed.dc.html` como home (`/`) con datos mock, sin autenticación ni base de datos, con estilo idéntico al mockup y navegación móvil propia.
@@ -77,16 +77,16 @@ Colores por badge (tomados del mockup): achievement `#CFEBD8`/`#3E9B6C`, activit
 
 ## Criterios de aceptación
 
-- [ ] `npm run dev` abre `/` sin errores en la consola del navegador.
-- [ ] En viewport desktop (1440px), la captura de `/` coincide visualmente con `references/screenshots/feed.png`: header "Buenas, Caro", botón "Compartí un momento…", y las 3 tarjetas en orden LOGRO, ACTIVIDAD, ANUNCIO.
-- [ ] Fondo de página `#F6ECDF`, tarjetas `#FFFDF9` con borde `#ECE0D0`, texto principal `#3F362E` (verificado en las herramientas de desarrollo).
-- [ ] Los badges usan los colores exactos: LOGRO `#CFEBD8`/`#3E9B6C`, ACTIVIDAD `#C7E7F1`/`#2E89A6`, ANUNCIO `#CCD8F4`/`#4E72C8`.
-- [ ] Contadores visibles: 3 me gusta / 1 comentario, 5 / 2, 8 / 0, en ese orden.
-- [ ] El HTML renderizado no contiene ningún `<link>` a `fonts.googleapis.com` (fuentes autoalojadas vía `next/font`).
-- [ ] En viewport móvil (390px) el sidebar está oculto y la barra inferior muestra las 4 pestañas sin romper el layout.
-- [ ] Todos los enlaces del sidebar y de las tarjetas apuntan a `/` y navegan sin 404.
-- [ ] Con `prefers-color-scheme: dark` activado, la página se ve exactamente igual que en claro.
-- [ ] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
+- [x] `npm run dev` abre `/` sin errores en la consola del navegador.
+- [x] En viewport desktop (1440px), la captura de `/` coincide visualmente con `references/screenshots/feed.png`: header "Buenas, Caro", botón "Compartí un momento…", y las 3 tarjetas en orden LOGRO, ACTIVIDAD, ANUNCIO.
+- [x] Fondo de página `#F6ECDF`, tarjetas `#FFFDF9` con borde `#ECE0D0`, texto principal `#3F362E` (verificado en las herramientas de desarrollo).
+- [x] Los badges usan los colores exactos: LOGRO `#CFEBD8`/`#3E9B6C`, ACTIVIDAD `#C7E7F1`/`#2E89A6`, ANUNCIO `#CCD8F4`/`#4E72C8`.
+- [x] Contadores visibles: 3 me gusta / 1 comentario, 5 / 2, 8 / 0, en ese orden.
+- [x] El HTML renderizado no contiene ningún `<link>` a `fonts.googleapis.com` (fuentes autoalojadas vía `next/font`).
+- [x] En viewport móvil (390px) el sidebar está oculto y la barra inferior muestra las 4 pestañas sin romper el layout.
+- [x] Todos los enlaces del sidebar y de las tarjetas apuntan a `/` y navegan sin 404.
+- [x] Con `prefers-color-scheme: dark` activado, la página se ve exactamente igual que en claro.
+- [x] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
 
 ## Decisiones
 
