@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme inline {
+  --font-heading: var(--font-fredoka);
+  --font-sans: var(--font-nunito);
+}
+
 @theme {
   /* Page and surfaces (mockup palette) */
   --color-bg: #f6ecdf;
@@ -38,5 +43,6 @@
 body {
   background: var(--color-bg);
   color: var(--color-ink);
+  font-family: var(--font-nunito), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
