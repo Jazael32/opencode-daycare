@@ -37,7 +37,11 @@ Before the final response, run one reporting pass. If candidates remain, from th
 ## Spec Driven Development
 
 - /spec Usaremos esta Skill para crear las especificaciones.
-- /spec-impl Usaremos esta skill para hacer las implementaciones
+- /spec-impl Usaremos esta skill para hacer las implementaciones.
+- **spec-verifier (subagente)**: después de implementar un spec, lánzalo para verificar y cerrar el ciclo. Verifica, corrige y marca los checks de "Criterios de aceptación" de `specs/*.md`:
+  - Usa **Context7** para validar el código contra la documentación actual de Next.js.
+  - Usa **Playwright** para validar las pantallas contra los mockups de `references/pantallas/` (las capturas van en `.playwright-mcp/`).
+  - Corrige lo que falle y marca los checks `[ ]` → `[x]` en el spec correspondiente solo cuando el criterio se cumpla de verdad.
 
 ## Project overview
 

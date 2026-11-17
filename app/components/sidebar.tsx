@@ -1,9 +1,13 @@
 import Link from "next/link";
 
+// Sections that can be highlighted as the current one; defaults to Feed.
+export type ActiveNav = "feed" | "kids" | "avisos" | "cuenta";
+
 const navItems = [
   {
+    key: "feed",
     label: "Feed",
-    active: true,
+    href: "/",
     icon: (
       <svg
         width="19"
@@ -20,8 +24,9 @@ const navItems = [
     ),
   },
   {
+    key: "kids",
     label: "Niños",
-    active: false,
+    href: "/kids",
     icon: (
       <svg
         width="19"
@@ -40,8 +45,9 @@ const navItems = [
     ),
   },
   {
+    key: "avisos",
     label: "Avisos",
-    active: false,
+    href: "/",
     icon: (
       <svg
         width="19"
@@ -58,8 +64,9 @@ const navItems = [
     ),
   },
   {
+    key: "cuenta",
     label: "Mi cuenta",
-    active: false,
+    href: "/",
     icon: (
       <svg
         width="19"
@@ -78,7 +85,7 @@ const navItems = [
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ active = "feed" }: { active?: ActiveNav }) {
   return (
     <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col bg-surface px-4 py-6 lg:flex lg:border-r lg:border-border">
       {/* Brand */}
@@ -134,11 +141,11 @@ export function Sidebar() {
       <nav className="flex flex-1 flex-col gap-1">
         {navItems.map((item) => (
           <Link
-            key={item.label}
-            href="/"
-            aria-current={item.active ? "page" : undefined}
+            key={item.key}
+            href={item.href}
+            aria-current={item.key === active ? "page" : undefined}
             className={
-              item.active
+              item.key === active
                 ? "flex items-center gap-3 rounded-xl bg-brand-soft px-3 py-[11px] text-[14.5px] font-extrabold text-brand"
                 : "flex items-center gap-3 rounded-xl px-3 py-[11px] text-[14.5px] font-semibold text-[#6E6359]"
             }
