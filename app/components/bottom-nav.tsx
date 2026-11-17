@@ -1,9 +1,12 @@
 import Link from "next/link";
 
+import type { ActiveNav } from "./sidebar";
+
 const tabs = [
   {
+    key: "feed",
     label: "Feed",
-    active: true,
+    href: "/",
     icon: (
       <svg
         width="21"
@@ -20,8 +23,9 @@ const tabs = [
     ),
   },
   {
+    key: "kids",
     label: "Niños",
-    active: false,
+    href: "/kids",
     icon: (
       <svg
         width="21"
@@ -40,8 +44,9 @@ const tabs = [
     ),
   },
   {
+    key: "avisos",
     label: "Avisos",
-    active: false,
+    href: "/",
     icon: (
       <svg
         width="21"
@@ -58,8 +63,9 @@ const tabs = [
     ),
   },
   {
+    key: "cuenta",
     label: "Mi cuenta",
-    active: false,
+    href: "/",
     icon: (
       <svg
         width="21"
@@ -78,7 +84,7 @@ const tabs = [
   },
 ];
 
-export function BottomNav() {
+export function BottomNav({ active = "feed" }: { active?: ActiveNav }) {
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-10 grid grid-cols-4 border-t border-border bg-surface lg:hidden"
@@ -86,11 +92,11 @@ export function BottomNav() {
     >
       {tabs.map((tab) => (
         <Link
-          key={tab.label}
-          href="/"
-          aria-current={tab.active ? "page" : undefined}
+          key={tab.key}
+          href={tab.href}
+          aria-current={tab.key === active ? "page" : undefined}
           className={
-            tab.active
+            tab.key === active
               ? "flex flex-col items-center gap-1 py-2.5 text-[11.5px] font-extrabold text-brand"
               : "flex flex-col items-center gap-1 py-2.5 text-[11.5px] font-semibold text-[#6E6359]"
           }
