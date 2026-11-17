@@ -1,6 +1,6 @@
 # SPEC 02 — Listado y perfil de Niños (`/kids`)
 
-> **Estado:** Verificado
+> **Estado:** Implementado
 > **Depende on:** SPEC 01
 > **Fecha:** 2026-11-17
 > **Objetivo:** Implementar las pantallas `references/pantallas/ninos.dc.html` (ruta `/kids`) y `references/pantallas/perfil-nino.dc.html` (ruta `/kids/[slug]`) con datos mock para los 8 niños, navegación desde el sidebar/barra inferior y buscador funcional.
