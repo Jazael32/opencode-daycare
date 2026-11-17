@@ -27,16 +27,9 @@ async function KidAge({ kid }: { kid: Kid }) {
   return <>{getAge(kid.birthDate)} años · Sala {kid.room}</>;
 }
 
-// The profile body reads the URL data, so it lives behind a Suspense boundary:
-// the shared shell stays reusable across kid links and this part streams in.
-// Unknown slugs redirect to /kids from here (never a 404).
-async function KidProfile({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const kid = getKidBySlug(slug);
-  if (!kid) {
-    redirect("/kids");
-  }
-
+// The profile body lives behind a Suspense boundary so the shared shell stays
+// reusable across kid links and this part streams in.
+function KidProfile({ kid }: { kid: Kid }) {
   return (
     <div className="flex flex-wrap items-start gap-[26px]">
       {/* Left column: header, allergy box, data card */}
@@ -214,11 +207,22 @@ function ProfileSkeleton() {
   );
 }
 
-export default function KidProfilePage({
+// This route reads the slug before rendering, so it opts out of instant
+// validation: unknown slugs redirect to /kids before any streaming starts
+// (never a 404). Redirecting inside a Suspense boundary would fail mid-stream.
+export const instant = false;
+
+export default async function KidProfilePage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await params;
+  const kid = getKidBySlug(slug);
+  if (!kid) {
+    redirect("/kids");
+  }
+
   return (
     <div className="flex min-h-screen bg-bg">
       <Sidebar active="kids" />
@@ -246,7 +250,7 @@ export default function KidProfilePage({
           </Link>
 
           <Suspense fallback={<ProfileSkeleton />}>
-            <KidProfile params={params} />
+            <KidProfile kid={kid} />
           </Suspense>
         </div>
       </main>

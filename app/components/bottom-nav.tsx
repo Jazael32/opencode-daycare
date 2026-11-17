@@ -97,8 +97,8 @@ export function BottomNav({ active = "feed" }: { active?: ActiveNav }) {
           aria-current={tab.key === active ? "page" : undefined}
           className={
             tab.key === active
-              ? "flex flex-col items-center gap-1 py-2.5 text-[11.5px] font-extrabold text-brand"
-              : "flex flex-col items-center gap-1 py-2.5 text-[11.5px] font-semibold text-[#6E6359]"
+              ? "mx-2 flex flex-col items-center gap-1 rounded-xl bg-brand-soft py-2.5 text-[11.5px] font-extrabold text-brand"
+              : "mx-2 flex flex-col items-center gap-1 rounded-xl py-2.5 text-[11.5px] font-semibold text-[#6E6359]"
           }
         >
           {tab.icon}

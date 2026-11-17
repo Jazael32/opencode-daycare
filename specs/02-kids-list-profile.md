@@ -1,6 +1,6 @@
 # SPEC 02 — Listado y perfil de Niños (`/kids`)
 
-> **Estado:** Aprovado
+> **Estado:** Verificado
 > **Depende on:** SPEC 01
 > **Fecha:** 2026-11-17
 > **Objetivo:** Implementar las pantallas `references/pantallas/ninos.dc.html` (ruta `/kids`) y `references/pantallas/perfil-nino.dc.html` (ruta `/kids/[slug]`) con datos mock para los 8 niños, navegación desde el sidebar/barra inferior y buscador funcional.
@@ -89,18 +89,18 @@ Reglas de derivación (no se guardan, se calculan):
 
 ## Criterios de aceptación
 
-- [ ] `/kids` renderiza sin errores de consola las 8 tarjetas en el orden del mockup: Mateo Fernández, Sofía Méndez, Benjamín Ruiz, Valentina Soto, Tomás Díaz, Emma Castro, Lucas Romero, Olivia Vega.
-- [ ] Las tarjetas muestran las pills correctas: MANÍ (Mateo), LACTOSA (Tomás), VINCULAR (Valentina) y chevron en las demás.
-- [ ] Los subtítulos muestran: "3 años · 2 padres vinculados", "2 años · 1 padre vinculado", "2 años · sin padres vinculados", según cada niño.
-- [ ] La edad mostrada se calcula desde `birthDate` y hoy coincide con el mockup ("3 años" / "2 años").
-- [ ] El buscador filtra por nombre ignorando mayúsculas y acentos (escribir "sofia" encuentra a "Sofía Méndez"), y sin coincidencias muestra "Sin resultados".
-- [ ] Click en cualquier tarjeta navega a `/kids/[slug]` con el slug kebab-case del niño.
-- [ ] `/kids/mateo-fernandez` muestra: avatar 84px con "M", caja "Alergias y notas" con el texto del mockup, tarjeta de datos (fecha de nacimiento, Sala Soles, ingreso), y 2 padres vinculados (Lucía ACTIVA, Diego PENDIENTE).
-- [ ] Un slug inexistente (p.ej. `/kids/pepe`) redirige a `/kids`.
-- [ ] En `/kids` y `/kids/[slug]` el ítem Niños del sidebar y de la barra inferior está activo (fondo `#FBE3D8`, texto `#D9583C`); en `/` sigue activo Feed.
-- [ ] Los enlaces Agregar niño, Editar, Resumen del día, Vincular otro padre y Nueva publicación apuntan a `/`.
-- [ ] En móvil (390px): sidebar oculto, barra inferior con Niños activo, tarjetas en 1 columna.
-- [ ] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
+- [x] `/kids` renderiza sin errores de consola las 8 tarjetas en el orden del mockup: Mateo Fernández, Sofía Méndez, Benjamín Ruiz, Valentina Soto, Tomás Díaz, Emma Castro, Lucas Romero, Olivia Vega.
+- [x] Las tarjetas muestran las pills correctas: MANÍ (Mateo), LACTOSA (Tomás), VINCULAR (Valentina) y chevron en las demás.
+- [x] Los subtítulos muestran: "3 años · 2 padres vinculados", "2 años · 1 padre vinculado", "2 años · sin padres vinculados", según cada niño.
+- [x] La edad mostrada se calcula desde `birthDate` y hoy coincide con el mockup ("3 años" / "2 años").
+- [x] El buscador filtra por nombre ignorando mayúsculas y acentos (escribir "sofia" encuentra a "Sofía Méndez"), y sin coincidencias muestra "Sin resultados".
+- [x] Click en cualquier tarjeta navega a `/kids/[slug]` con el slug kebab-case del niño.
+- [x] `/kids/mateo-fernandez` muestra: avatar 84px con "M", caja "Alergias y notas" con el texto del mockup, tarjeta de datos (fecha de nacimiento, Sala Soles, ingreso), y 2 padres vinculados (Lucía ACTIVA, Diego PENDIENTE).
+- [x] Un slug inexistente (p.ej. `/kids/pepe`) redirige a `/kids`.
+- [x] En `/kids` y `/kids/[slug]` el ítem Niños del sidebar y de la barra inferior está activo (fondo `#FBE3D8`, texto `#D9583C`); en `/` sigue activo Feed.
+- [x] Los enlaces Agregar niño, Editar, Resumen del día, Vincular otro padre y Nueva publicación apuntan a `/`.
+- [x] En móvil (390px): sidebar oculto, barra inferior con Niños activo, tarjetas en 1 columna.
+- [x] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
 
 ## Decisiones
 
