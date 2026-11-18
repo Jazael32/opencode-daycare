@@ -149,6 +149,12 @@ export function generateParentLinkCode(): string {
   return generateUniqueCode(readStorageSnapshot(), Date.now());
 }
 
+// True when any invitation exists (any kid, any status). /activar-cuenta uses
+// it to keep the SPEC 03 submit behavior when nothing was ever invited.
+export function hasParentLinks(): boolean {
+  return readStorageSnapshot().length > 0;
+}
+
 function writeLinks(links: ParentLink[]): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
