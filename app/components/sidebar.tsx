@@ -167,7 +167,7 @@ export function Sidebar({ active = "feed" }: { active?: ActiveNav }) {
             <span className="block text-[12px] text-muted">Maestra · Soles</span>
           </span>
           <Link
-            href="/"
+            href="/login"
             title="Cerrar sesión"
             aria-label="Cerrar sesión"
             className="flex h-8 w-8 flex-none items-center justify-center rounded-[10px] bg-bg text-[#94887B]"
