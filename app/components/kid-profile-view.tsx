@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { formatBirthDate, parentStatusColors, parentStatusLabels, type Kid } from "@/app/lib/mock-kids";
+import { formatBirthDate, type Kid } from "@/app/lib/mock-kids";
+import { LinkedParents } from "@/app/components/linked-parents";
 
 // Pure profile presentation, shared by the mock kids (server) and the stored
 // kids (client). The age arrives computed so this module stays sync.
@@ -104,59 +105,7 @@ export function KidProfileView({ kid, age }: { kid: Kid; age: number }) {
           Resumen del día
         </Link>
 
-        <div className="rounded-2xl border border-border bg-surface px-[18px] py-4">
-          <div className="mb-[14px] text-[12.5px] font-extrabold tracking-[0.8px] text-[#8A7C6D]">
-            PADRES VINCULADOS
-          </div>
-          <div className="flex flex-col gap-[14px]">
-            {kid.parents.map((parent) => (
-              <div key={parent.name} className="flex items-center gap-3">
-                <span
-                  className="flex h-10 w-10 flex-none items-center justify-center rounded-full font-heading text-[16px] font-semibold"
-                  style={{ background: parent.avatarColors.bg, color: parent.avatarColors.fg }}
-                >
-                  {parent.initial}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[14.5px] font-extrabold text-ink">
-                    {parent.name}
-                  </span>
-                  <span className="block text-[12.5px] text-muted">
-                    {parent.relation} · {parentStatusLabels[parent.status]}
-                  </span>
-                </span>
-                <span
-                  className="flex-none rounded-full px-[9px] py-[4px] text-[10.5px] font-extrabold"
-                  style={{
-                    background: parentStatusColors[parent.status].background,
-                    color: parentStatusColors[parent.status].text,
-                  }}
-                >
-                  {parent.status === "active" ? "ACTIVA" : "PENDIENTE"}
-                </span>
-              </div>
-            ))}
-            <Link href="/" className="flex items-center gap-3 pt-2">
-              <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-[1.5px] border-dashed border-[#D8CBBA] text-[#B0A290]">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </span>
-              <span className="text-[14.5px] font-extrabold text-[#C5503A]">
-                Vincular otro padre
-              </span>
-            </Link>
-          </div>
-        </div>
+        <LinkedParents kid={kid} />
       </div>
     </div>
   );
