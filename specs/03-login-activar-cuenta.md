@@ -1,6 +1,6 @@
 # SPEC 03 — Login y Activar cuenta (`/login`, `/activar-cuenta`)
 
-> **Estado:** Aprobado
+> **Estado:** Verificado
 > **Depende on:** SPEC 01
 > **Fecha:** 2026-11-17
 > **Objetivo:** Implementar las pantallas `references/pantallas/login.dc.html` (ruta `/login`, sin el selector de rol Personal/Familia) y `references/pantallas/activar-cuenta.dc.html` (ruta `/activar-cuenta`) con formularios vacíos y navegación entre ambas y hacia `/`, sin autenticación real.
@@ -53,20 +53,20 @@ Placeholders definidos (los inputs no llevan `value`):
 
 ## Criterios de aceptación
 
-- [ ] `/login` abre sin errores de consola en desktop (1440px).
-- [ ] `/login` **no** contiene el bloque "INGRESO COMO" ni los botones Personal/Familia.
-- [ ] El panel coral muestra el gradiente `#F6A98E → #EC7E62`, branding OpenDayCare, la tagline y "🌿 Guardería Sala Soles" (verificado en herramientas de desarrollo).
-- [ ] Los inputs EMAIL y CONTRASEÑA de `/login` están vacíos y muestran los placeholders `tu@email.com` y `••••••••`.
-- [ ] "¿Olvidaste tu contraseña?" es visible y no navega a ningún lado.
-- [ ] El CTA "Iniciar sesión" navega a `/` (el feed de SPEC 01).
-- [ ] El enlace "Activá tu cuenta" navega a `/activar-cuenta`.
-- [ ] En móvil (390px) el panel coral está oculto y el formulario queda centrado sobre fondo `#FBF4EC`.
-- [ ] `/activar-cuenta` muestra la caja de invitación con avatar "M" y el texto "Mateo · Sala Soles".
-- [ ] Los inputs CÓDIGO DE INVITACIÓN, EMAIL y CREAR CONTRASEÑA están vacíos con los placeholders definidos.
-- [ ] El checkbox de autorización inicia desmarcado y alterna su estado al hacer clic.
-- [ ] El CTA "Activar mi cuenta" navega a `/` y el enlace "Iniciar sesión" navega a `/login`.
-- [ ] El botón "salir" del sidebar en `/` apunta a `/login`; el resto del sidebar y de la app no cambia.
-- [ ] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
+- [x] `/login` abre sin errores de consola en desktop (1440px).
+- [x] `/login` **no** contiene el bloque "INGRESO COMO" ni los botones Personal/Familia.
+- [x] El panel coral muestra el gradiente `#F6A98E → #EC7E62`, branding OpenDayCare, la tagline y "🌿 Guardería Sala Soles" (verificado en herramientas de desarrollo).
+- [x] Los inputs EMAIL y CONTRASEÑA de `/login` están vacíos y muestran los placeholders `tu@email.com` y `••••••••`.
+- [x] "¿Olvidaste tu contraseña?" es visible y no navega a ningún lado.
+- [x] El CTA "Iniciar sesión" navega a `/` (el feed de SPEC 01).
+- [x] El enlace "Activá tu cuenta" navega a `/activar-cuenta`.
+- [x] En móvil (390px) el panel coral está oculto y el formulario queda centrado sobre fondo `#FBF4EC`.
+- [x] `/activar-cuenta` muestra la caja de invitación con avatar "M" y el texto "Mateo · Sala Soles".
+- [x] Los inputs CÓDIGO DE INVITACIÓN, EMAIL y CREAR CONTRASEÑA están vacíos con los placeholders definidos.
+- [x] El checkbox de autorización inicia desmarcado y alterna su estado al hacer clic.
+- [x] El CTA "Activar mi cuenta" navega a `/` y el enlace "Iniciar sesión" navega a `/login`.
+- [x] El botón "salir" del sidebar en `/` apunta a `/login`; el resto del sidebar y de la app no cambia.
+- [x] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
 
 ## Decisiones
 
