@@ -1,6 +1,6 @@
 # SPEC 03 — Login y Activar cuenta (`/login`, `/activar-cuenta`)
 
-> **Estado:** Verificado
+> **Estado:** Implementado
 > **Depende on:** SPEC 01
 > **Fecha:** 2026-11-17
 > **Objetivo:** Implementar las pantallas `references/pantallas/login.dc.html` (ruta `/login`, sin el selector de rol Personal/Familia) y `references/pantallas/activar-cuenta.dc.html` (ruta `/activar-cuenta`) con formularios vacíos y navegación entre ambas y hacia `/`, sin autenticación real.
