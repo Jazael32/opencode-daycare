@@ -1,6 +1,6 @@
 # SPEC 05 — Vincular padre desde el perfil y activación en `/activar-cuenta`
 
-> **Estado:** Aprobado
+> **Estado:** Verificado
 > **Depende on:** SPEC 02, SPEC 03, SPEC 04
 > **Fecha:** 2026-11-18
 > **Objetivo:** Implementar el modal de `references/pantallas/vincular-padre.dc.html` que abre el botón "Vincular otro padre" de `/kids/[slug]`, persistiendo la invitación (nombre, email, parentesco y código de 5 caracteres que vence en 7 días) en localStorage, y usar esas invitaciones como base de `/activar-cuenta` (caja dinámica, prefill de email y validación de código que marca al padre como activa).
@@ -89,22 +89,22 @@ Extensión de `app/components/kid-profile-view.tsx`: la caja PADRES VINCULADOS s
 
 ## Criterios de aceptación
 
-- [ ] Click en "Vincular otro padre" en `/kids/[slug]` abre el modal **sin navegar**; X, Esc y clic fuera lo cierran sin guardar.
-- [ ] El modal reproduce el mockup: header "Vincular padre" + "a {nombre}", caja informativa azul, campos con los placeholders `Ej. Diego Fernández` y `correo@ejemplo.com`, pills Mamá/Papá/Tutor/a con Mamá en estilo activo, caja de código con fondo `#FBF1D6` borde dashed y "Vence en 7 días".
-- [ ] Cada vez que el modal se abre se genera un código nuevo de 5 caracteres (distinguible del anterior).
-- [ ] "Enviar invitación" con nombre vacío muestra error inline y no cierra el modal.
-- [ ] "Enviar invitación" con email de formato inválido muestra error inline y no cierra el modal.
-- [ ] "Enviar invitación" con un email ya vinculado/pendiente para ese niño muestra error inline y no guarda nada.
-- [ ] Un envío válido cierra el modal y el padre aparece en PADRES VINCULADOS con avatar de inicial, parentesco y pill PENDIENTE ("invitación enviada").
-- [ ] El padre vinculado persiste tras recargar en `od-parent-links:v1`, tanto en un perfil mock como en uno creado con Agregar niño.
-- [ ] Sin padres guardados, el perfil es idéntico al actual de SPEC 02/04.
-- [ ] En `/activar-cuenta`, tipear un código pendiente actualiza la caja a "Te invitaron a seguir a {niño} · Sala {sala}" y precarga el email de esa invitación; vaciarlo o tipear un código desconocido vuelve a la caja estática "Mateo · Sala Soles".
-- [ ] "Activar mi cuenta" con código+email de una invitación pendiente no vencida navega a `/`.
-- [ ] "Activar mi cuenta" con código inexistente, email que no corresponde a esa invitación, o invitación vencida muestra error inline y no navega.
-- [ ] Tras una activación exitosa, el mismo código no vuelve a validar (quedó consumido) y el perfil muestra al padre con pill ACTIVA.
-- [ ] Sin invitaciones guardadas, `/activar-cuenta` se comporta exactamente como SPEC 03 (caja estática, checkbox, navegación).
-- [ ] En móvil (390px) el modal ocupa el ancho y el perfil mantiene su layout.
-- [ ] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
+- [x] Click en "Vincular otro padre" en `/kids/[slug]` abre el modal **sin navegar**; X, Esc y clic fuera lo cierran sin guardar.
+- [x] El modal reproduce el mockup: header "Vincular padre" + "a {nombre}", caja informativa azul, campos con los placeholders `Ej. Diego Fernández` y `correo@ejemplo.com`, pills Mamá/Papá/Tutor/a con Mamá en estilo activo, caja de código con fondo `#FBF1D6` borde dashed y "Vence en 7 días".
+- [x] Cada vez que el modal se abre se genera un código nuevo de 5 caracteres (distinguible del anterior).
+- [x] "Enviar invitación" con nombre vacío muestra error inline y no cierra el modal.
+- [x] "Enviar invitación" con email de formato inválido muestra error inline y no cierra el modal.
+- [x] "Enviar invitación" con un email ya vinculado/pendiente para ese niño muestra error inline y no guarda nada.
+- [x] Un envío válido cierra el modal y el padre aparece en PADRES VINCULADOS con avatar de inicial, parentesco y pill PENDIENTE ("invitación enviada").
+- [x] El padre vinculado persiste tras recargar en `od-parent-links:v1`, tanto en un perfil mock como en uno creado con Agregar niño.
+- [x] Sin padres guardados, el perfil es idéntico al actual de SPEC 02/04.
+- [x] En `/activar-cuenta`, tipear un código pendiente actualiza la caja a "Te invitaron a seguir a {niño} · Sala {sala}" y precarga el email de esa invitación; vaciarlo o tipear un código desconocido vuelve a la caja estática "Mateo · Sala Soles".
+- [x] "Activar mi cuenta" con código+email de una invitación pendiente no vencida navega a `/`.
+- [x] "Activar mi cuenta" con código inexistente, email que no corresponde a esa invitación, o invitación vencida muestra error inline y no navega.
+- [x] Tras una activación exitosa, el mismo código no vuelve a validar (quedó consumido) y el perfil muestra al padre con pill ACTIVA.
+- [x] Sin invitaciones guardadas, `/activar-cuenta` se comporta exactamente como SPEC 03 (caja estática, checkbox, navegación).
+- [x] En móvil (390px) el modal ocupa el ancho y el perfil mantiene su layout.
+- [x] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
 
 ## Decisiones
 
