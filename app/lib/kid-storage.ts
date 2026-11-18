@@ -60,26 +60,55 @@ export function notifyKidsUpdated(): void {
   }
 }
 
-// Read the stored kids; [] when unavailable (SSR, disabled storage, bad data).
-export function getStoredKids(): Kid[] {
+// Cached storage snapshot: keeps object identity stable between reads so it
+// can back useSyncExternalStore without re-parsing on every call.
+let snapshotRaw: string | null | undefined; // undefined = never read
+let snapshotKids: Kid[] = [];
+
+function readStorageSnapshot(): Kid[] {
   if (typeof window === "undefined") {
     return [];
   }
 
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return [];
-    }
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as Kid[]) : [];
-  } catch {
-    return [];
+  const raw = window.localStorage.getItem(STORAGE_KEY);
+  if (raw === snapshotRaw) {
+    return snapshotKids;
   }
+
+  let parsed: Kid[] = [];
+  try {
+    if (raw) {
+      const data = JSON.parse(raw);
+      if (Array.isArray(data)) {
+        parsed = data as Kid[];
+      }
+    }
+  } catch {
+    parsed = [];
+  }
+
+  snapshotRaw = raw;
+  snapshotKids = parsed;
+  return snapshotKids;
+}
+
+// Read the stored kids; [] when unavailable (SSR, disabled storage, bad data).
+export function getStoredKids(): Kid[] {
+  return readStorageSnapshot();
 }
 
 export function getStoredKidBySlug(slug: string): Kid | undefined {
-  return getStoredKids().find((kid) => kid.slug === slug);
+  return readStorageSnapshot().find((kid) => kid.slug === slug);
+}
+
+// Subscribe the caller to kid-list changes (saves in this tab and in others).
+export function subscribeToKids(callback: () => void): () => void {
+  window.addEventListener(KIDS_UPDATED_EVENT, callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener(KIDS_UPDATED_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
 }
 
 // "Martina López" → "martina-lopez"; accents dropped, other chars to dashes.
