@@ -43,7 +43,7 @@ export function AddKidModal({
 }) {
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("");
-  const [room, setRoom] = useState<Room | "">("");
+  const [room, setRoom] = useState<Room | null>(null);
   const [allergies, setAllergies] = useState("");
   const [medicalNotes, setMedicalNotes] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});

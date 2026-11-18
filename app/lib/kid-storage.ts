@@ -51,6 +51,15 @@ export function parseBirthDate(input: string): string | null {
   return `${yearText}-${monthText}-${dayText}`;
 }
 
+// Window event dispatched after each save so the grid can re-read storage.
+export const KIDS_UPDATED_EVENT = "od-kids-updated";
+
+export function notifyKidsUpdated(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(KIDS_UPDATED_EVENT));
+  }
+}
+
 // Read the stored kids; [] when unavailable (SSR, disabled storage, bad data).
 export function getStoredKids(): Kid[] {
   if (typeof window === "undefined") {
