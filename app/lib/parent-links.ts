@@ -24,11 +24,13 @@ export interface ParentLink {
   status: ParentLinkStatus;
 }
 
-// Raw modal fields; code, date and status are derived by saveParentLink.
+// Raw modal fields; date and status are derived by saveParentLink. The modal
+// shows a code before saving, so it can pass that code back to keep them equal.
 export interface NewParentLinkDraft {
   name: string;
   email: string;
   relation: Relation;
+  code?: string;
 }
 
 // Window event dispatched after each save or activation.
@@ -141,6 +143,12 @@ function generateUniqueCode(links: ParentLink[], now: number): string {
   return code;
 }
 
+// Code shown in the modal; saveParentLink persists it unless it collided in
+// the meantime (then it generates a fresh one).
+export function generateParentLinkCode(): string {
+  return generateUniqueCode(readStorageSnapshot(), Date.now());
+}
+
 function writeLinks(links: ParentLink[]): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
@@ -175,12 +183,21 @@ export function saveParentLink(kidSlug: string, draft: NewParentLinkDraft): Pare
   }
 
   const now = Date.now();
+  const takenCodes = new Set(
+    links.filter((link) => isPendingAndValid(link, now)).map((link) => link.code),
+  );
+  const requestedCode = draft.code ? normalizeCode(draft.code) : "";
+  const requestedCodeIsValid =
+    requestedCode.length === CODE_LENGTH &&
+    [...requestedCode].every((character) => CODE_ALPHABET.includes(character)) &&
+    !takenCodes.has(requestedCode);
+
   const link: ParentLink = {
     kidSlug,
     name,
     email,
     relation: draft.relation,
-    code: generateUniqueCode(links, now),
+    code: requestedCodeIsValid ? requestedCode : generateUniqueCode(links, now),
     createdAt: new Date(now).toISOString(),
     status: "pending",
   };
