@@ -1,6 +1,6 @@
 # SPEC 04 — Modal Agregar niño en `/kids`
 
-> **Estado:** Verificado
+> **Estado:** Implementado
 > **Depende on:** SPEC 02
 > **Fecha:** 2026-11-17
 > **Objetivo:** Implementar el modal de `references/pantallas/agregar-nino.dc.html` que abre el botón "Agregar niño" de `/kids`, con Nombre completo, Fecha de nacimiento y Sala obligatorios (dropdown mock de Soles/Lunas/Estrellas), validación inline y persistencia en localStorage integrada al listado y al perfil.
