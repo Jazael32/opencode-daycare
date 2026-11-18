@@ -32,6 +32,20 @@ export interface Kid {
   parents: Parent[];
 }
 
+// The three rooms of the daycare, in the order the list renders them.
+export const ROOMS = ["Soles", "Lunas", "Estrellas"] as const;
+export type Room = (typeof ROOMS)[number];
+
+// Palette extracted from the avatars of the mock kids, reused as a rotation
+// for newly created kids.
+export const AVATAR_PALETTE: { bg: string; fg: string }[] = [
+  { bg: "#A9D9E8", fg: "#1F7A93" },
+  { bg: "#F4B8CC", fg: "#C44A7A" },
+  { bg: "#B9DEC4", fg: "#3E8B62" },
+  { bg: "#F4DC8E", fg: "#9A7B1E" },
+  { bg: "#C9B6E8", fg: "#7B5FC0" },
+];
+
 export function getKidBySlug(slug: string): Kid | undefined {
   return kids.find((kid) => kid.slug === slug);
 }
