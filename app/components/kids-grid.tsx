@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
-import { getAge, type Kid } from "@/app/lib/mock-kids";
+import { useEffect, useState } from "react";
+import { getAge, ROOMS, type Kid } from "@/app/lib/mock-kids";
+import { getStoredKids, KIDS_UPDATED_EVENT } from "@/app/lib/kid-storage";
 
 // Card pill colors from the mockup: background / text.
 const allergyPillColors = { background: "#FBD8CC", text: "#D9684A" };
@@ -45,18 +46,57 @@ function Chevron() {
   );
 }
 
-export function KidsGrid({
-  kids,
-  children,
-}: {
-  kids: Kid[];
-  children?: ReactNode;
-}) {
+// "SALA SOLES" separator from the mockup: label, count, hairline.
+function RoomSeparator({ room, count }: { room: string; count: number }) {
+  return (
+    <div className="mb-[14px] flex items-center gap-3">
+      <span className="text-[12.5px] font-extrabold tracking-[0.8px] text-ink">
+        SALA {room.toLocaleUpperCase("es")}
+      </span>
+      <span className="text-[13px] text-muted">
+        {count} {count === 1 ? "niño" : "niños"}
+      </span>
+      <span className="h-px flex-1 bg-separator" />
+    </div>
+  );
+}
+
+export function KidsGrid({ kids }: { kids: Kid[] }) {
+  // Starts mock-only so the first render matches the server prerender; the
+  // stored kids mix in after mount (and on every save) to avoid hydration
+  // mismatches.
+  const [mixedKids, setMixedKids] = useState(kids);
+  useEffect(() => {
+    const remix = () => {
+      const stored = getStoredKids();
+      setMixedKids(stored.length > 0 ? [...kids, ...stored] : kids);
+    };
+    remix();
+    window.addEventListener(KIDS_UPDATED_EVENT, remix);
+    return () => window.removeEventListener(KIDS_UPDATED_EVENT, remix);
+  }, [kids]);
+
   const [query, setQuery] = useState("");
   const normalizedQuery = normalizeQuery(query.trim());
   const visibleKids = normalizedQuery
-    ? kids.filter((kid) => normalizeQuery(kid.name).includes(normalizedQuery))
-    : kids;
+    ? mixedKids.filter((kid) => normalizeQuery(kid.name).includes(normalizedQuery))
+    : mixedKids;
+
+  // Group by room, keeping the mockup order (Soles → Lunas → Estrellas) and
+  // skipping rooms without kids.
+  const kidsByRoom = new Map<string, Kid[]>();
+  for (const kid of visibleKids) {
+    const group = kidsByRoom.get(kid.room);
+    if (group) {
+      group.push(kid);
+    } else {
+      kidsByRoom.set(kid.room, [kid]);
+    }
+  }
+  const roomGroups = ROOMS.filter((room) => kidsByRoom.has(room)).map((room) => ({
+    room,
+    kids: kidsByRoom.get(room) ?? [],
+  }));
 
   return (
     <>
@@ -85,9 +125,7 @@ export function KidsGrid({
         />
       </div>
 
-      {children}
-
-      {/* Cards */}
+      {/* Room sections */}
       {visibleKids.length === 0 ? (
         <div className="rounded-[18px] border border-border bg-surface px-6 py-10 text-center">
           <p className="m-0 font-heading text-[16px] font-semibold text-ink">
@@ -95,51 +133,56 @@ export function KidsGrid({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-[14px] sm:grid-cols-2">
-          {visibleKids.map((kid) => (
-            <Link
-              key={kid.slug}
-              href={`/kids/${kid.slug}`}
-              className="group flex min-w-0 items-center gap-[14px] rounded-[18px] border border-border bg-surface p-4 shadow-[0_4px_14px_-12px_rgba(120,90,60,0.5)] transition-[border-color,transform] duration-150 hover:-translate-y-0.5 hover:border-[#F2A78E]"
-            >
-              <span
-                className="flex h-12 w-12 flex-none items-center justify-center rounded-full font-heading text-[19px] font-semibold"
-                style={{ background: kid.avatarColors.bg, color: kid.avatarColors.fg }}
-              >
-                {kid.initial}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block font-heading text-[16px] font-semibold text-ink">
-                  {kid.name}
-                </span>
-                <span className="block text-[13px] text-muted">{cardSubtitle(kid)}</span>
-              </span>
-              {kid.allergy ? (
-                <span
-                  className="flex-none rounded-full px-[9px] py-[5px] text-[11px] font-extrabold"
-                  style={{
-                    background: allergyPillColors.background,
-                    color: allergyPillColors.text,
-                  }}
+        roomGroups.map(({ room, kids: roomKids }, index) => (
+          <section key={room} className={index === roomGroups.length - 1 ? "" : "mb-[18px]"}>
+            <RoomSeparator room={room} count={roomKids.length} />
+            <div className="grid grid-cols-1 gap-[14px] sm:grid-cols-2">
+              {roomKids.map((kid) => (
+                <Link
+                  key={kid.slug}
+                  href={`/kids/${kid.slug}`}
+                  className="group flex min-w-0 items-center gap-[14px] rounded-[18px] border border-border bg-surface p-4 shadow-[0_4px_14px_-12px_rgba(120,90,60,0.5)] transition-[border-color,transform] duration-150 hover:-translate-y-0.5 hover:border-[#F2A78E]"
                 >
-                  {kid.allergy.label}
-                </span>
-              ) : kid.parents.length === 0 ? (
-                <span
-                  className="flex-none rounded-full px-[9px] py-[5px] text-[11px] font-extrabold"
-                  style={{
-                    background: linkPillColors.background,
-                    color: linkPillColors.text,
-                  }}
-                >
-                  VINCULAR
-                </span>
-              ) : (
-                <Chevron />
-              )}
-            </Link>
-          ))}
-        </div>
+                  <span
+                    className="flex h-12 w-12 flex-none items-center justify-center rounded-full font-heading text-[19px] font-semibold"
+                    style={{ background: kid.avatarColors.bg, color: kid.avatarColors.fg }}
+                  >
+                    {kid.initial}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-heading text-[16px] font-semibold text-ink">
+                      {kid.name}
+                    </span>
+                    <span className="block text-[13px] text-muted">{cardSubtitle(kid)}</span>
+                  </span>
+                  {kid.allergy ? (
+                    <span
+                      className="flex-none rounded-full px-[9px] py-[5px] text-[11px] font-extrabold"
+                      style={{
+                        background: allergyPillColors.background,
+                        color: allergyPillColors.text,
+                      }}
+                    >
+                      {kid.allergy.label}
+                    </span>
+                  ) : kid.parents.length === 0 ? (
+                    <span
+                      className="flex-none rounded-full px-[9px] py-[5px] text-[11px] font-extrabold"
+                      style={{
+                        background: linkPillColors.background,
+                        color: linkPillColors.text,
+                      }}
+                    >
+                      VINCULAR
+                    </span>
+                  ) : (
+                    <Chevron />
+                  )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ))
       )}
     </>
   );

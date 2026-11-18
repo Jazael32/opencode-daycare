@@ -38,17 +38,9 @@ export default function KidsPage() {
             <AddKidButton />
           </div>
 
-          {/* Search box, room separator, cards */}
+          {/* Search box, dynamic room separators, cards */}
           <Suspense fallback={<KidsGridSkeleton />}>
-            <KidsGrid kids={kids}>
-              <div className="mb-[14px] flex items-center gap-3">
-                <span className="text-[12.5px] font-extrabold tracking-[0.8px] text-ink">
-                  SALA SOLES
-                </span>
-                <span className="text-[13px] text-muted">{kids.length} niños</span>
-                <span className="h-px flex-1 bg-separator" />
-              </div>
-            </KidsGrid>
+            <KidsGrid kids={kids} />
           </Suspense>
         </div>
       </main>
