@@ -52,9 +52,14 @@ export function KidProfileView({ kid, age }: { kid: Kid; age: number }) {
               <span className="mb-[2px] block text-[15px] font-extrabold text-[#C5413A]">
                 Alergias y notas
               </span>
-              <span className="block text-[14.5px] leading-[1.5] text-[#B25249]">
-                {kid.allergy.notes}
+              <span className="block text-[13px] font-extrabold tracking-[0.6px] text-[#B25249]">
+                {kid.allergy.label}
               </span>
+              {kid.allergy.notes && (
+                <span className="mt-[4px] block text-[14.5px] leading-[1.5] text-[#B25249]">
+                  {kid.allergy.notes}
+                </span>
+              )}
             </span>
           </div>
         )}

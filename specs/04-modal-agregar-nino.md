@@ -1,6 +1,6 @@
 # SPEC 04 — Modal Agregar niño en `/kids`
 
-> **Estado:** Aprobado
+> **Estado:** Verificado
 > **Depende on:** SPEC 02
 > **Fecha:** 2026-11-17
 > **Objetivo:** Implementar el modal de `references/pantallas/agregar-nino.dc.html` que abre el botón "Agregar niño" de `/kids`, con Nombre completo, Fecha de nacimiento y Sala obligatorios (dropdown mock de Soles/Lunas/Estrellas), validación inline y persistencia en localStorage integrada al listado y al perfil.
@@ -86,19 +86,19 @@ Reglas de derivación de `saveNewKid` (no las pide el modal):
 
 ## Criterios de aceptación
 
-- [ ] Click en "Agregar niño" en `/kids` abre el modal **sin navegar**; click en "Cancelar", fuera del card o Esc lo cierra sin guardar.
-- [ ] El modal reproduce el mockup: header Cancelar / "Agregar niño" / Guardar, card `#FBF4EC` radio 24px `max-w-[520px]`, y los 5 campos con los placeholders `Ej. Martina López`, `dd/mm/aaaa`, `Seleccionar sala`, `Ej. Maní, Lactosa`, `Indicaciones, medicación, contactos…`.
-- [ ] El dropdown SALA muestra exactamente Soles, Lunas y Estrellas e inicia en "Seleccionar sala".
-- [ ] "Guardar" con Nombre, Fecha o Sala vacíos muestra error inline en cada campo faltante y no cierra el modal.
-- [ ] "Guardar" con fecha en formato incorrecto o fecha futura muestra error inline y no cierra el modal.
-- [ ] "Guardar" válido persiste el niño en `od-kids:v1` y el modal se cierra; el niño aparece en `/kids` en la sección de su sala, con avatar de inicial, subtítulo "n años · sin padres vinculados" y pill VINCULAR.
-- [ ] Recargar la página conserva el niño guardado y la sección "SALA SOLES · 8 niños" se mantiene cuando no hay niños nuevos.
-- [ ] Un niño guardado en Lunas genera la sección "SALA LUNAS · 1 niño" (y ninguna sección para salas vacías).
-- [ ] El buscador filtra la lista mezclada (mock + guardados), insensible a acentos/mayúsculas.
-- [ ] La tarjeta de un niño nuevo navega a `/kids/[slug]` y su perfil muestra: edad calculada, Sala, ingreso del mes actual, caja "Alergias y notas" solo si cargó alergias (etiquetas en mayúscula + notas médicas).
-- [ ] Los 8 perfiles mock y el redirect de slug desconocido a `/kids` siguen funcionando sin cambios.
-- [ ] En móvil (390px) el modal ocupa el ancho y el listado mantiene barra inferior con Niños activo.
-- [ ] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
+- [x] Click en "Agregar niño" en `/kids` abre el modal **sin navegar**; click en "Cancelar", fuera del card o Esc lo cierra sin guardar.
+- [x] El modal reproduce el mockup: header Cancelar / "Agregar niño" / Guardar, card `#FBF4EC` radio 24px `max-w-[520px]`, y los 5 campos con los placeholders `Ej. Martina López`, `dd/mm/aaaa`, `Seleccionar sala`, `Ej. Maní, Lactosa`, `Indicaciones, medicación, contactos…`.
+- [x] El dropdown SALA muestra exactamente Soles, Lunas y Estrellas e inicia en "Seleccionar sala".
+- [x] "Guardar" con Nombre, Fecha o Sala vacíos muestra error inline en cada campo faltante y no cierra el modal.
+- [x] "Guardar" con fecha en formato incorrecto o fecha futura muestra error inline y no cierra el modal.
+- [x] "Guardar" válido persiste el niño en `od-kids:v1` y el modal se cierra; el niño aparece en `/kids` en la sección de su sala, con avatar de inicial, subtítulo "n años · sin padres vinculados" y pill VINCULAR.
+- [x] Recargar la página conserva el niño guardado y la sección "SALA SOLES · 8 niños" se mantiene cuando no hay niños nuevos.
+- [x] Un niño guardado en Lunas genera la sección "SALA LUNAS · 1 niño" (y ninguna sección para salas vacías).
+- [x] El buscador filtra la lista mezclada (mock + guardados), insensible a acentos/mayúsculas.
+- [x] La tarjeta de un niño nuevo navega a `/kids/[slug]` y su perfil muestra: edad calculada, Sala, ingreso del mes actual, caja "Alergias y notas" solo si cargó alergias (etiquetas en mayúscula + notas médicas).
+- [x] Los 8 perfiles mock y el redirect de slug desconocido a `/kids` siguen funcionando sin cambios.
+- [x] En móvil (390px) el modal ocupa el ancho y el listado mantiene barra inferior con Niños activo.
+- [x] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
 
 ## Decisiones
 
