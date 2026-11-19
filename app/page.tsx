@@ -1,8 +1,8 @@
 import { BottomNav } from "@/app/components/bottom-nav";
+import { FeedList } from "@/app/components/feed-list";
 import { NewPostButton } from "@/app/components/new-post-button";
-import { PostCard } from "@/app/components/post-card";
 import { Sidebar } from "@/app/components/sidebar";
-import { feedPosts, user } from "@/app/lib/mock-feed";
+import { user } from "@/app/lib/mock-feed";
 
 export default function HomePage() {
   return (
@@ -34,11 +34,7 @@ export default function HomePage() {
           </div>
 
           {/* Posts */}
-          <div className="flex flex-col gap-4">
-            {feedPosts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
+          <FeedList />
         </div>
       </main>
 
