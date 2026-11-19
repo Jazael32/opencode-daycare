@@ -1,6 +1,6 @@
 # SPEC 06 — Crear publicación: modal desde el sidebar y feed persistente
 
-> **Estado:** Verificado
+> **Estado:** Implementando
 > **Depende on:** SPEC 01, SPEC 04
 > **Fecha:** 2026-11-18
 > **Objetivo:** Implementar el modal de `references/pantallas/crear-publicacion.dc.html` que abren el botón "Nueva publicación" del sidebar y la caja "Compartí un momento…" de `/`, con destinatario y tipo obligatorios, descripción validada inline y persistencia en localStorage (`od-posts:v1`), de modo que la publicación nueva aparezca arriba del feed como los posts existentes.
