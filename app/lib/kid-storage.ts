@@ -1,3 +1,4 @@
+import { createLocalStorageStore } from "@/app/lib/local-storage-store";
 import {
   AVATAR_PALETTE,
   kids as mockKids,
@@ -54,61 +55,37 @@ export function parseBirthDate(input: string): string | null {
 // Window event dispatched after each save so the grid can re-read storage.
 export const KIDS_UPDATED_EVENT = "od-kids-updated";
 
-export function notifyKidsUpdated(): void {
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new Event(KIDS_UPDATED_EVENT));
+// Stored kids are a JSON array; anything else means "no stored kids".
+function parseStoredKids(raw: string | null): Kid[] {
+  if (!raw) {
+    return [];
+  }
+  try {
+    const data: unknown = JSON.parse(raw);
+    return Array.isArray(data) ? (data as Kid[]) : [];
+  } catch {
+    return [];
   }
 }
 
-// Cached storage snapshot: keeps object identity stable between reads so it
-// can back useSyncExternalStore without re-parsing on every call.
-let snapshotRaw: string | null | undefined; // undefined = never read
-let snapshotKids: Kid[] = [];
+const kidsStore = createLocalStorageStore(STORAGE_KEY, KIDS_UPDATED_EVENT, parseStoredKids);
 
-function readStorageSnapshot(): Kid[] {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (raw === snapshotRaw) {
-    return snapshotKids;
-  }
-
-  let parsed: Kid[] = [];
-  try {
-    if (raw) {
-      const data = JSON.parse(raw);
-      if (Array.isArray(data)) {
-        parsed = data as Kid[];
-      }
-    }
-  } catch {
-    parsed = [];
-  }
-
-  snapshotRaw = raw;
-  snapshotKids = parsed;
-  return snapshotKids;
+export function notifyKidsUpdated(): void {
+  kidsStore.notify();
 }
 
 // Read the stored kids; [] when unavailable (SSR, disabled storage, bad data).
 export function getStoredKids(): Kid[] {
-  return readStorageSnapshot();
+  return kidsStore.getSnapshot();
 }
 
 export function getStoredKidBySlug(slug: string): Kid | undefined {
-  return readStorageSnapshot().find((kid) => kid.slug === slug);
+  return getStoredKids().find((kid) => kid.slug === slug);
 }
 
 // Subscribe the caller to kid-list changes (saves in this tab and in others).
 export function subscribeToKids(callback: () => void): () => void {
-  window.addEventListener(KIDS_UPDATED_EVENT, callback);
-  window.addEventListener("storage", callback);
-  return () => {
-    window.removeEventListener(KIDS_UPDATED_EVENT, callback);
-    window.removeEventListener("storage", callback);
-  };
+  return kidsStore.subscribe(callback);
 }
 
 // "Martina López" → "martina-lopez"; accents dropped, other chars to dashes.
@@ -181,11 +158,8 @@ export function saveNewKid(draft: NewKidDraft): Kid {
     parents: [],
   };
 
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...stored, kid]));
-  } catch {
-    // Persistence is best-effort: still return the kid so the UI can show it.
-  }
+  // Persistence is best-effort: still return the kid so the UI can show it.
+  kidsStore.write([...stored, kid]);
 
   return kid;
 }

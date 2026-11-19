@@ -1,6 +1,6 @@
 # SPEC 06 — Crear publicación: modal desde el sidebar y feed persistente
 
-> **Estado:** Aprobado
+> **Estado:** Verificado
 > **Depende on:** SPEC 01, SPEC 04
 > **Fecha:** 2026-11-18
 > **Objetivo:** Implementar el modal de `references/pantallas/crear-publicacion.dc.html` que abren el botón "Nueva publicación" del sidebar y la caja "Compartí un momento…" de `/`, con destinatario y tipo obligatorios, descripción validada inline y persistencia en localStorage (`od-posts:v1`), de modo que la publicación nueva aparezca arriba del feed como los posts existentes.
@@ -118,21 +118,21 @@ Cambios en existentes:
 
 ## Criterios de aceptación
 
-- [ ] Click en "Nueva publicación" del sidebar abre el modal **sin navegar**, tanto en `/` como en `/kids`; click en la caja "Compartí un momento…" abre el mismo modal (en móvil es el disparador disponible).
-- [ ] "Cancelar", tecla Esc y clic fuera del card cierran el modal sin guardar nada.
-- [ ] PARA muestra los 8 niños mock + los guardados (con avatar de inicial y sus colores) + "Toda la sala", sin ninguno preseleccionado; la selección es simple (cambiar de pill reemplaza la elección).
-- [ ] TIPO muestra las 7 pills con los colores exactos del mockup y sin preselección; la activa se distingue con anillo.
-- [ ] "Publicar" sin destinatario muestra error inline bajo PARA y no cierra el modal.
-- [ ] "Publicar" sin tipo muestra error inline bajo TIPO y no cierra el modal.
-- [ ] "Publicar" con descripción vacía muestra error inline bajo DESCRIPCIÓN y no cierra el modal.
-- [ ] Una publicación válida cierra el modal y el post aparece arriba del feed con: pill de tipo correcta, hora HH:MM actual, "publicado por vos", 0 likes y 0 comentarios.
-- [ ] Un post dirigido a un niño tiene como autor su primer nombre, su avatar (inicial + colores) y "Para: familia de {nombre}".
-- [ ] Un post con "Toda la sala" tiene autor "Anuncio general", avatar megáfono y "Para: toda la sala".
-- [ ] El post publicado persiste tras recargar en `od-posts:v1` y sigue arriba de los posts mock.
-- [ ] Sin posts guardados, el feed es idéntico al actual de SPEC 01.
-- [ ] El modal se abre también desde `/kids` y `/kids/[slug]`, y al publicar desde ahí el post aparece en `/` al navegar.
-- [ ] En móvil (390px) el modal ocupa el ancho y el composer lo abre.
-- [ ] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
+- [x] Click en "Nueva publicación" del sidebar abre el modal **sin navegar**, tanto en `/` como en `/kids`; click en la caja "Compartí un momento…" abre el mismo modal (en móvil es el disparador disponible).
+- [x] "Cancelar", tecla Esc y clic fuera del card cierran el modal sin guardar nada.
+- [x] PARA muestra los 8 niños mock + los guardados (con avatar de inicial y sus colores) + "Toda la sala", sin ninguno preseleccionado; la selección es simple (cambiar de pill reemplaza la elección).
+- [x] TIPO muestra las 7 pills con los colores exactos del mockup y sin preselección; la activa se distingue con anillo.
+- [x] "Publicar" sin destinatario muestra error inline bajo PARA y no cierra el modal.
+- [x] "Publicar" sin tipo muestra error inline bajo TIPO y no cierra el modal.
+- [x] "Publicar" con descripción vacía muestra error inline bajo DESCRIPCIÓN y no cierra el modal.
+- [x] Una publicación válida cierra el modal y el post aparece arriba del feed con: pill de tipo correcta, hora HH:MM actual, "publicado por vos", 0 likes y 0 comentarios.
+- [x] Un post dirigido a un niño tiene como autor su primer nombre, su avatar (inicial + colores) y "Para: familia de {nombre}".
+- [x] Un post con "Toda la sala" tiene autor "Anuncio general", avatar megáfono y "Para: toda la sala".
+- [x] El post publicado persiste tras recargar en `od-posts:v1` y sigue arriba de los posts mock.
+- [x] Sin posts guardados, el feed es idéntico al actual de SPEC 01.
+- [x] El modal se abre también desde `/kids` y `/kids/[slug]`, y al publicar desde ahí el post aparece en `/` al navegar.
+- [x] En móvil (390px) el modal ocupa el ancho y el composer lo abre.
+- [x] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
 
 ## Decisiones
 

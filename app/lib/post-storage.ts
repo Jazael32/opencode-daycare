@@ -1,4 +1,5 @@
 import { getStoredKids } from "@/app/lib/kid-storage";
+import { createLocalStorageStore } from "@/app/lib/local-storage-store";
 import { kids as mockKids } from "@/app/lib/mock-kids";
 import type { Badge, FeedPost } from "@/app/lib/mock-feed";
 
@@ -22,59 +23,38 @@ export interface NewPostDraft {
   body: string; // not trimmed yet
 }
 
-// Cached storage snapshot: keeps object identity stable between reads so it
-// can back useSyncExternalStore without re-parsing on every call.
-let snapshotRaw: string | null | undefined; // undefined = never read
-let snapshotPosts: StoredPost[] = [];
-
-function readStorageSnapshot(): StoredPost[] {
-  if (typeof window === "undefined") {
+// Stored posts are a JSON array sorted newest first; anything else means none.
+function parseStoredPosts(raw: string | null): StoredPost[] {
+  if (!raw) {
     return [];
   }
-
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (raw === snapshotRaw) {
-    return snapshotPosts;
-  }
-
-  let parsed: StoredPost[] = [];
   try {
-    if (raw) {
-      const data = JSON.parse(raw);
-      if (Array.isArray(data)) {
-        parsed = (data as StoredPost[]).sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        );
-      }
+    const data: unknown = JSON.parse(raw);
+    if (!Array.isArray(data)) {
+      return [];
     }
+    return (data as StoredPost[]).sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
   } catch {
-    parsed = [];
+    return [];
   }
-
-  snapshotRaw = raw;
-  snapshotPosts = parsed;
-  return snapshotPosts;
 }
+
+const postsStore = createLocalStorageStore(STORAGE_KEY, POSTS_UPDATED_EVENT, parseStoredPosts);
 
 // Read the stored posts; [] when unavailable (SSR, disabled storage, bad data).
 export function getStoredPosts(): StoredPost[] {
-  return readStorageSnapshot();
+  return postsStore.getSnapshot();
 }
 
 export function notifyPostsUpdated(): void {
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new Event(POSTS_UPDATED_EVENT));
-  }
+  postsStore.notify();
 }
 
 // Subscribe the caller to post changes (saves in this tab and in others).
 export function subscribeToPosts(callback: () => void): () => void {
-  window.addEventListener(POSTS_UPDATED_EVENT, callback);
-  window.addEventListener("storage", callback);
-  return () => {
-    window.removeEventListener(POSTS_UPDATED_EVENT, callback);
-    window.removeEventListener("storage", callback);
-  };
+  return postsStore.subscribe(callback);
 }
 
 // Persist a new post and notify the feed. The modal validates before calling,
@@ -100,11 +80,8 @@ export function saveNewPost(draft: NewPostDraft): StoredPost {
   };
 
   const stored = getStoredPosts();
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...stored, post]));
-  } catch {
-    // Persistence is best-effort: still return the post so the UI can show it.
-  }
+  // Persistence is best-effort: still return the post so the UI can show it.
+  postsStore.write([...stored, post]);
   notifyPostsUpdated();
   return post;
 }
