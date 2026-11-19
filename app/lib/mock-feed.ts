@@ -1,10 +1,21 @@
-export type Badge = "achievement" | "activity" | "announcement";
+export type Badge =
+  | "achievement"
+  | "activity"
+  | "announcement"
+  | "comida"
+  | "siesta"
+  | "animo"
+  | "foto";
 
 // Spanish labels for display; the UI renders these, never the raw value.
 export const badgeLabels: Record<Badge, string> = {
   achievement: "LOGRO",
   activity: "ACTIVIDAD",
   announcement: "ANUNCIO",
+  comida: "COMIDA",
+  siesta: "SIESTA",
+  animo: "ÁNIMO",
+  foto: "FOTO",
 };
 
 // Pill colors per badge, taken from the mockup: background / text.
@@ -12,6 +23,10 @@ export const badgeColors: Record<Badge, { background: string; text: string }> = 
   achievement: { background: "#CFEBD8", text: "#3E9B6C" },
   activity: { background: "#C7E7F1", text: "#2E89A6" },
   announcement: { background: "#CCD8F4", text: "#4E72C8" },
+  comida: { background: "#F7E7A6", text: "#9A7B1E" },
+  siesta: { background: "#E7DCF6", text: "#7B5FC0" },
+  animo: { background: "#F9D2DE", text: "#C56486" },
+  foto: { background: "#FBD8CC", text: "#D9684A" },
 };
 
 export interface FeedPost {
@@ -24,6 +39,7 @@ export interface FeedPost {
   audience: string; // "Para: familia de Mateo" | "Para: toda la sala"
   body: string;
   photoCaption?: string; // "Foto · pintando con témperas" (activity only)
+  avatarColors?: { bg: string; fg: string }; // kid avatar; without it, bg-avatar-sky
   likes: number; // 3 | 5 | 8
   comments: number; // 1 | 2 | 0
 }

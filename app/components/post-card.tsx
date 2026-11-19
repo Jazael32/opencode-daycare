@@ -27,10 +27,17 @@ export function PostCard({ post }: { post: FeedPost }) {
     <article className="rounded-[20px] border border-border bg-surface px-[22px] py-5 shadow-[0_4px_16px_-12px_rgba(120,90,60,0.5)]">
       {/* Header */}
       <div className="mb-3.5 flex items-center gap-3">
-        {post.badge === "announcement" ? (
+        {post.author === "Anuncio general" ? (
           <MegaphoneAvatar />
         ) : (
-          <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-avatar-sky font-heading text-[17px] font-semibold text-avatar-sky-ink">
+          <span
+            className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-avatar-sky font-heading text-[17px] font-semibold text-avatar-sky-ink"
+            style={
+              post.avatarColors
+                ? { background: post.avatarColors.bg, color: post.avatarColors.fg }
+                : undefined
+            }
+          >
             {post.initial}
           </span>
         )}
