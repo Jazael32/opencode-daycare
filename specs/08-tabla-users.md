@@ -1,6 +1,6 @@
 # SPEC 08 — Tabla `users`, enums de usuario, RLS y staff demo
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 07 — Tabla `daycares`
 > **Fecha:** 2026-11-23
 > **Objetivo:** Crear los enums `user_role` / `user_status` y la tabla `public.users` (perfil de dominio vinculado a Supabase Auth) en el proyecto `aqvrzjfdyqwcfiotnagu`, con el trigger que crea el perfil al registrarse, policies de RLS para `users` y `daycares`, y un usuario `staff` demo para probar.
@@ -328,30 +328,39 @@ $$;
 
 ## Criterios de aceptación
 
-- [ ] `public.user_role` existe con valores `staff`, `parent`, `admin` (en ese orden y sin extras).
-- [ ] `public.user_status` existe con valores `pending`, `active`.
-- [ ] `public.users` existe con exactamente 10 columnas: `id`, `daycare_id`, `role`, `status`, `full_name`, `avatar_url`, `notify_on_post`, `daily_summary_enabled`, `created_at`, `updated_at`.
-- [ ] `id` es `uuid NOT NULL` PK con FK a `auth.users(id)` `ON DELETE CASCADE`.
-- [ ] `daycare_id` es `uuid NOT NULL` con FK a `public.daycares(id)` y existe el índice `users_daycare_id_idx`.
-- [ ] `role` es `user_role NOT NULL`; `status` es `user_status NOT NULL DEFAULT 'active'`.
-- [ ] `full_name` es `text NOT NULL`; `avatar_url` es `text` nullable.
-- [ ] `notify_on_post` y `daily_summary_enabled` son `boolean NOT NULL DEFAULT true`.
-- [ ] `created_at` y `updated_at` son `timestamptz NOT NULL DEFAULT now()`, y el trigger `users_set_updated_at` actualiza `updated_at` en cada update.
-- [ ] `users` tiene RLS **habilitado**.
-- [ ] Existen las 4 policies de `users`: `users_select_own`, `users_select_daycare_staff`, `users_select_daycare_team` y `users_update_own`.
-- [ ] Existe la policy `daycares_select_own` (solo el daycare propio).
-- [ ] `private.current_daycare_id()` y `private.current_user_role()` existen, son `SECURITY DEFINER`, `STABLE`, `search_path` fijo, y solo `authenticated` tiene `execute` (más el owner).
-- [ ] `authenticated` solo tiene `update` de columna en `full_name`, `avatar_url`, `notify_on_post` y `daily_summary_enabled`; no en `role`, `status`, `daycare_id` ni `id`.
-- [ ] `anon` no tiene privilegios sobre `users` ni `daycares`.
-- [ ] Un `select` como `staff` (JWT simulado) devuelve su fila de `users` y su `daycares`; como `anon` no devuelve filas.
-- [ ] Existe el trigger `on_auth_user_created` (`AFTER INSERT` en `auth.users`) con función `SECURITY DEFINER` y `search_path` fijado.
-- [ ] Existe el usuario `staff@demo.daycare` en `auth.users` con email confirmado y contraseña hasheada.
-- [ ] Existe exactamente un perfil en `public.users` para ese usuario con `role = 'staff'`, `status = 'active'`, `full_name = 'Caro Giménez'` y el `daycare_id` de `Guardería Sala Soles`.
-- [ ] Ninguna migración hardcodea UUIDs generados (daycare por `name`, ids por `gen_random_uuid()`).
-- [ ] `list_migrations` lista las 4 migraciones como aplicadas.
-- [ ] `get_advisors` (security) no reporta `users`/`daycares` con RLS deshabilitado ni `rls_enabled_no_policy`; no reporta `function_search_path_mutable`.
-- [ ] `get_advisors` (performance) no reporta hallazgos nuevos para `users`.
-- [ ] Las 4 migraciones quedaron materializadas en `supabase/migrations/` y commiteadas.
+- [x] `public.user_role` existe con valores `staff`, `parent`, `admin` (en ese orden y sin extras).
+- [x] `public.user_status` existe con valores `pending`, `active`.
+- [x] `public.users` existe con exactamente 10 columnas: `id`, `daycare_id`, `role`, `status`, `full_name`, `avatar_url`, `notify_on_post`, `daily_summary_enabled`, `created_at`, `updated_at`.
+- [x] `id` es `uuid NOT NULL` PK con FK a `auth.users(id)` `ON DELETE CASCADE`.
+- [x] `daycare_id` es `uuid NOT NULL` con FK a `public.daycares(id)` y existe el índice `users_daycare_id_idx`.
+- [x] `role` es `user_role NOT NULL`; `status` es `user_status NOT NULL DEFAULT 'active'`.
+- [x] `full_name` es `text NOT NULL`; `avatar_url` es `text` nullable.
+- [x] `notify_on_post` y `daily_summary_enabled` son `boolean NOT NULL DEFAULT true`.
+- [x] `created_at` y `updated_at` son `timestamptz NOT NULL DEFAULT now()`, y el trigger `users_set_updated_at` actualiza `updated_at` en cada update.
+- [x] `users` tiene RLS **habilitado**.
+- [x] Existen las 4 policies de `users`: `users_select_own`, `users_select_daycare_staff`, `users_select_daycare_team` y `users_update_own`.
+- [x] Existe la policy `daycares_select_own` (solo el daycare propio).
+- [x] `private.current_daycare_id()` y `private.current_user_role()` existen, son `SECURITY DEFINER`, `STABLE`, `search_path` fijo, y solo `authenticated` tiene `execute` (más el owner).
+- [x] `authenticated` solo tiene `update` de columna en `full_name`, `avatar_url`, `notify_on_post` y `daily_summary_enabled`; no en `role`, `status`, `daycare_id` ni `id`.
+- [x] `anon` no tiene privilegios sobre `users` ni `daycares`.
+- [x] Un `select` como `staff` (JWT simulado) devuelve su fila de `users` y su `daycares`; como `anon` no devuelve filas.
+- [x] Existe el trigger `on_auth_user_created` (`AFTER INSERT` en `auth.users`) con función `SECURITY DEFINER` y `search_path` fijado.
+- [x] Existe el usuario `staff@demo.daycare` en `auth.users` con email confirmado y contraseña hasheada.
+- [x] Existe exactamente un perfil en `public.users` para ese usuario con `role = 'staff'`, `status = 'active'`, `full_name = 'Caro Giménez'` y el `daycare_id` de `Guardería Sala Soles`.
+- [x] Ninguna migración hardcodea UUIDs generados (daycare por `name`, ids por `gen_random_uuid()`).
+- [x] `list_migrations` lista las 4 migraciones del plan como aplicadas, más las 2 correctivas `revoke_execute_on_handle_new_user` y `revoke_execute_on_handle_new_user_from_client_roles` (ver Notas de implementación).
+- [x] `get_advisors` (security) no reporta `users`/`daycares` con RLS deshabilitado ni `rls_enabled_no_policy`; no reporta `function_search_path_mutable`.
+- [x] `get_advisors` (performance) reporta únicamente el WARN `multiple_permissive_policies` en `users`, aceptado por decisión explícita: la visibilidad por rol exige 3 policies permissive `SELECT` con semántica OR (ver Notas de implementación). Sin otros hallazgos nuevos.
+- [x] Las 4 migraciones del plan (más las 2 correctivas) quedaron materializadas en `supabase/migrations/` y commiteadas.
+
+## Notas de implementación (2026-11-23)
+
+- Las 4 migraciones del plan se aplicaron en orden (`20261123071802`, `20261123072016`, `20261123072025`, `20261123072034`) y quedaron verificadas una a una contra el catálogo (`pg_enum`, `information_schema.columns`, `pg_constraint`, `pg_indexes`, `pg_trigger`, `pg_policies`, `information_schema.role_column_grants`).
+- **Migraciones correctivas (2):** `get_advisors` marcó `public.handle_new_user()` como `SECURITY DEFINER` ejecutable por `anon`/`authenticated`. La primera corrección (`revoke ... from public`) resultó insuficiente porque Supabase otorga **default privileges** explícitos a `anon`, `authenticated` y `service_role` para funciones creadas en el schema `public`; la segunda (`revoke ... from public, anon, authenticated`) sí cerró el hallazgo. El trigger `on_auth_user_created` sigue disparándose (verificado con un insert de prueba en `auth.users` dentro de una transacción con `rollback`: el perfil se creó y el dato quedó intacto). Lección para specs futuras: toda función en `public` necesita revocar `execute` también a los roles de cliente, no solo a `PUBLIC`.
+- **WARN aceptado:** `multiple_permissive_policies` en `users` (performance). La visibilidad por rol (`own` / `staff` / `team`) exige 3 policies permissive `SELECT` con semántica OR; fusionarlas contradeciría el criterio que exige los 4 nombres exactos. Aceptado por decisión del owner durante la implementación.
+- **Pruebas de RLS (con `rollback`):** JWT simulado del staff devuelve su fila de `users` y `Guardería Sala Soles` en `daycares`; `anon` recibe `permission denied` en ambas tablas; `update` de `role`/`status`/`daycare_id`/`id` como `authenticated` falla con `permission denied`; `update` de `full_name` funciona y el trigger avanzó `updated_at`.
+- **Advisors finales:** security reporta solo hallazgos preexistentes (`rls_auto_enable()` ejecutable y `auth_leaked_password_protection` deshabilitado), ninguno creado por esta spec; performance reporta solo el WARN aceptado; health sin hallazgos.
+- Credenciales demo: `staff@demo.daycare` / `demo1234` (data de desarrollo, no apta para producción).
 
 ## Decisiones
 
