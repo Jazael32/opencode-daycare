@@ -33,6 +33,27 @@ Before the final response, run one reporting pass. If candidates remain, from th
 
 - Playwright Screenshots y cualquier cosa relacionada a Playwright tiene que estar en la carpeta .playwright-mcp.
 - Context 7 usaremos este mcp para traer la documentacion actualizada del framework.
+- Supabase: MCP global para el proyecto `aqvrzjfdyqwcfiotnagu`. Se usa desde Code Mode como `tools.supabase.*`.
+
+## Supabase
+
+- **Conexión**: el servidor `supabase` está configurado en `~/.config/opencode/opencode.json` (global) y apunta al proyecto `aqvrzjfdyqwcfiotnagu`. Si `opencode mcp list` muestra `needs authentication`, ejecutar `/mcps` en OpenCode, seleccionar `supabase` y completar el OAuth en el navegador.
+- **Tools principales** (`tools.supabase.*`):
+  - Inspección: `list_tables`, `list_extensions`, `list_migrations`, `search_docs`.
+  - SQL: `execute_sql` para consultas y `apply_migration` para DDL (migraciones).
+  - Diagnóstico: `query_logs` (logs unificados) y `get_advisors` (seguridad, performance y health).
+  - Integración: `get_project_url`, `get_publishable_keys`, `generate_typescript_types`.
+  - Edge Functions: `list_edge_functions`, `get_edge_function`, `deploy_edge_function`.
+- **Skills instaladas** (nivel proyecto, en `.agents/skills/`, registradas en `skills-lock.json`):
+  - `supabase`: cargarla para cualquier tarea de Supabase (Database, Auth, Edge Functions, Realtime, Storage, Vectors, Cron, Queues, `supabase-js`, `@supabase/ssr`, CLI, RLS, migraciones y debugging).
+  - `supabase-postgres-best-practices`: cargarla **antes** de escribir o modificar cualquier cosa en Postgres (tablas, columnas y tipos, schema, migraciones, RLS, índices, triggers, funciones, `pg_cron`, `pgmq`, `pgvector`, imports/restores) y al diagnosticar queries lentas, locks, bloat, timeouts o filas visibles por el tenant equivocado.
+- **Schema de referencia**: `../07-db-schema` (referencia de tablas, columnas y relaciones; todavía no está aplicado en la base de datos).
+- **Reglas de trabajo**:
+  - Inspeccionar las tablas existentes antes de cambiar el schema.
+  - Antes de modificar la DB remota, revisar logs y advisories del proyecto.
+  - Usar `apply_migration` para DDL y preferir desarrollo/pruebas locales con el CLI `supabase` antes de aplicar en remoto.
+  - No hardcodear IDs generados en migraciones de datos.
+  - El SQL corre en el servidor: nunca leer archivos del servidor ni ejecutar comandos del SO vía SQL (`COPY ... FROM '/path'`, `COPY ... FROM PROGRAM`, `pg_read_file`, `pg_ls_dir`, `lo_import`).
 
 ## Spec Driven Development
 
