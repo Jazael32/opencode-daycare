@@ -1,24 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { getKidBySlug } from "@/app/lib/mock-kids";
 import { getStoredKidBySlug } from "@/app/lib/kid-storage";
-import {
-  activateParentLink,
-  findPendingByCode,
-  hasParentLinks,
-  type ParentLink,
-} from "@/app/lib/parent-links";
+import { findPendingByCode, type ParentLink } from "@/app/lib/parent-links";
 
 export default function ActivarCuentaPage() {
-  const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
   const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
   const [matchedLink, setMatchedLink] = useState<ParentLink | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
 
   // Resolve the invited kid (mock or stored) to drive the invitation box.
   const matchedKid = matchedLink
@@ -37,7 +29,6 @@ export default function ActivarCuentaPage() {
 
   function handleCodeChange(value: string) {
     setCode(value);
-    setFormError(null);
 
     const match = findPendingByCode(value);
     setMatchedLink(match ?? null);
@@ -48,25 +39,12 @@ export default function ActivarCuentaPage() {
 
   function handleEmailChange(value: string) {
     setEmail(value);
-    setFormError(null);
   }
 
+  // Account activation is not implemented yet (SPEC 09), so the CTA never
+  // navigates. Preventing the default keeps Enter from reloading the page.
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    setFormError(null);
-
-    if (activateParentLink(code, email)) {
-      router.push("/");
-      return;
-    }
-
-    // No invitations at all: stay exactly on the SPEC 03 behavior (CTA → /).
-    if (!hasParentLinks()) {
-      router.push("/");
-      return;
-    }
-
-    setFormError("El código y el email no coinciden, o la invitación venció.");
   }
 
   return (
@@ -133,7 +111,6 @@ export default function ActivarCuentaPage() {
             value={code}
             onChange={(event) => handleCodeChange(event.target.value)}
             placeholder="7K4P9"
-            aria-invalid={Boolean(formError)}
             className="mb-[18px] w-full rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-[14px] font-heading text-[18px] font-bold tracking-[3px] text-ink placeholder:text-[#B6A99B] focus:outline-none"
           />
 
@@ -150,7 +127,6 @@ export default function ActivarCuentaPage() {
             value={email}
             onChange={(event) => handleEmailChange(event.target.value)}
             placeholder="tu@email.com"
-            aria-invalid={Boolean(formError)}
             className="mb-[18px] w-full rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-[14px] text-[15px] text-ink placeholder:text-[#B6A99B] focus:outline-none"
           />
 
@@ -201,17 +177,8 @@ export default function ActivarCuentaPage() {
             </span>
           </label>
 
-          {formError && (
-            <p
-              role="alert"
-              className="mb-4 text-center text-[13.5px] font-bold text-[#C5413A]"
-            >
-              {formError}
-            </p>
-          )}
-
           <button
-            type="submit"
+            type="button"
             className="block w-full rounded-[15px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] py-[15px] text-center text-[16px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,0.7)]"
           >
             Activar mi cuenta
