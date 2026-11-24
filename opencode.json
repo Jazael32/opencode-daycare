@@ -13,7 +13,7 @@
   },
   "lsp": true,
   "references": {
-    "docs": {
+    "db-schema": {
       "path": "../07-db-schema",
       "description": "Schema de base de datos, tablas, columnas y referencias a crear, esto no esta implemetando en la base de datos, es solo para referencia."
     }
