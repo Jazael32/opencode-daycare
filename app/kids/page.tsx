@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { AddKidButton } from "@/app/components/add-kid-button";
 import { BottomNav } from "@/app/components/bottom-nav";
@@ -13,6 +14,11 @@ import { createClient } from "@/utils/supabase/server";
 export const instant = false;
 
 export default async function KidsPage() {
+  // The page is request-bound from the very top: reading the session
+  // (supabase.auth.getClaims checks JWT expiry against the clock) and the
+  // child ages must never run during prerendering.
+  await connection();
+
   const user = await getCurrentUserProfile();
 
   if (!user) {

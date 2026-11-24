@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { BottomNav } from "@/app/components/bottom-nav";
 import { Sidebar } from "@/app/components/sidebar";
@@ -22,6 +23,11 @@ export default async function KidProfilePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+
+  // The page is request-bound from the very top: reading the session
+  // (supabase.auth.getClaims checks JWT expiry against the clock) and the
+  // age must never run during prerendering.
+  await connection();
 
   const user = await getCurrentUserProfile();
 
