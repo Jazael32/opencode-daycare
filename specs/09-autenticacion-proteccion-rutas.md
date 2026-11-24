@@ -1,6 +1,6 @@
 # SPEC 09 — Autenticación email/password y protección de rutas
 
-> **Estado:** Verificado
+> **Estado:** Completado
 > **Depende de:** SPEC 03 — Login y Activar cuenta, SPEC 08 — Tabla `users`
 > **Fecha:** 2026-11-23
 > **Objetivo:** Implementar login real email/contraseña contra Supabase Auth, proteger todas las rutas excepto `/login` y `/activar-cuenta`, cerrar sesión real, y mostrar la identidad real (perfil `users` + `daycares`) en el sidebar y el saludo del feed.
