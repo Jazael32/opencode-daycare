@@ -1,13 +1,25 @@
+import { redirect } from "next/navigation";
 import { BottomNav } from "@/app/components/bottom-nav";
 import { FeedList } from "@/app/components/feed-list";
 import { NewPostButton } from "@/app/components/new-post-button";
 import { Sidebar } from "@/app/components/sidebar";
+import { getCurrentUserProfile } from "@/app/lib/auth";
 import { user } from "@/app/lib/mock-feed";
 
-export default function HomePage() {
+// Reading the profile needs request cookies, so the page blocks on the server
+// instead of prerendering a static shell without identity.
+export const instant = false;
+
+export default async function HomePage() {
+  const profile = await getCurrentUserProfile();
+
+  if (!profile) {
+    redirect("/login");
+  }
+
   return (
     <div className="flex min-h-screen bg-bg">
-      <Sidebar />
+      <Sidebar user={profile} />
 
       <main className="min-w-0 flex-1">
         <div className="mx-auto w-full max-w-[760px] px-4 pt-6 pb-28 sm:px-6 lg:px-10 lg:pt-[34px] lg:pb-20">

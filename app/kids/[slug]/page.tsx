@@ -1,10 +1,12 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { BottomNav } from "@/app/components/bottom-nav";
 import { Sidebar } from "@/app/components/sidebar";
 import { KidProfile } from "@/app/components/kid-profile";
 import { ProfileSkeleton } from "@/app/components/kid-profile-view";
 import { StoredKidProfile } from "@/app/components/stored-kid-profile";
+import { getCurrentUserProfile } from "@/app/lib/auth";
 import { getKidBySlug, kids } from "@/app/lib/mock-kids";
 
 // The known slugs prerender as static pages; unknown ones render on demand
@@ -28,9 +30,15 @@ export default async function KidProfilePage({
   // fall back to the client component below.
   const kid = getKidBySlug(slug);
 
+  const user = await getCurrentUserProfile();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   return (
     <div className="flex min-h-screen bg-bg">
-      <Sidebar active="kids" />
+      <Sidebar active="kids" user={user} />
 
       <main className="min-w-0 flex-1">
         <div className="mx-auto w-full max-w-[820px] px-4 pt-6 pb-28 sm:px-6 lg:px-10 lg:pt-[34px] lg:pb-20">

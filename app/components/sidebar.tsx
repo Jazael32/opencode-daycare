@@ -1,8 +1,17 @@
 import Link from "next/link";
+import { LogoutButton } from "@/app/components/logout-button";
 import { NewPostButton } from "@/app/components/new-post-button";
+import type { UserProfile, UserRole } from "@/app/lib/auth";
 
 // Sections that can be highlighted as the current one; defaults to Feed.
 export type ActiveNav = "feed" | "kids" | "avisos" | "cuenta";
+
+// Roles persist in English (SPEC 08); the UI shows them in Spanish.
+const roleLabels: Record<UserRole, string> = {
+  staff: "Maestra",
+  parent: "Familia",
+  admin: "Admin",
+};
 
 const navItems = [
   {
@@ -86,7 +95,18 @@ const navItems = [
   },
 ];
 
-export function Sidebar({ active = "feed" }: { active?: ActiveNav }) {
+export function Sidebar({
+  active = "feed",
+  user,
+}: {
+  active?: ActiveNav;
+  user: UserProfile;
+}) {
+  const initial = user.fullName.trim().charAt(0).toUpperCase() || "?";
+  const roleAndDaycare = [roleLabels[user.role], user.daycareName]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col bg-surface px-4 py-6 lg:flex lg:border-r lg:border-border">
       {/* Brand */}
@@ -113,7 +133,9 @@ export function Sidebar({ active = "feed" }: { active?: ActiveNav }) {
           <span className="block font-heading text-[17px] leading-none font-semibold text-ink">
             OpenDayCare
           </span>
-          <span className="mt-0.5 block text-[11.5px] text-muted">Sala Soles</span>
+          <span className="mt-0.5 block text-[11.5px] text-muted">
+            {user.daycareName}
+          </span>
         </span>
       </Link>
 
@@ -143,31 +165,15 @@ export function Sidebar({ active = "feed" }: { active?: ActiveNav }) {
       <div className="mt-[10px] border-t border-border pt-[14px]">
         <div className="flex items-center gap-[11px] px-2 py-1.5">
           <span className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full bg-avatar font-heading text-[16px] font-semibold text-white">
-            C
+            {initial}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[14px] font-extrabold text-ink">Caro Giménez</span>
-            <span className="block text-[12px] text-muted">Maestra · Soles</span>
+            <span className="block text-[14px] font-extrabold text-ink">
+              {user.fullName}
+            </span>
+            <span className="block text-[12px] text-muted">{roleAndDaycare}</span>
           </span>
-          <Link
-            href="/login"
-            title="Cerrar sesión"
-            aria-label="Cerrar sesión"
-            className="flex h-8 w-8 flex-none items-center justify-center rounded-[10px] bg-bg text-[#94887B]"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
-            </svg>
-          </Link>
+          <LogoutButton />
         </div>
       </div>
     </aside>

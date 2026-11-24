@@ -1,9 +1,14 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { AddKidButton } from "@/app/components/add-kid-button";
 import { BottomNav } from "@/app/components/bottom-nav";
 import { KidsGrid } from "@/app/components/kids-grid";
 import { Sidebar } from "@/app/components/sidebar";
+import { getCurrentUserProfile } from "@/app/lib/auth";
 import { kids } from "@/app/lib/mock-kids";
+
+// The profile read needs request cookies, so the page blocks on the server.
+export const instant = false;
 
 // Stable placeholder for the prerendered shell; the real grid (which reads the
 // current date to show each kid's age) streams in behind this boundary.
@@ -20,10 +25,16 @@ function KidsGridSkeleton() {
   );
 }
 
-export default function KidsPage() {
+export default async function KidsPage() {
+  const user = await getCurrentUserProfile();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   return (
     <div className="flex min-h-screen bg-bg">
-      <Sidebar active="kids" />
+      <Sidebar active="kids" user={user} />
 
       <main className="min-w-0 flex-1">
         <div className="mx-auto w-full max-w-[880px] px-4 pt-6 pb-28 sm:px-6 lg:px-10 lg:pt-[34px] lg:pb-20">
