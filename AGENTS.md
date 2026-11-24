@@ -60,6 +60,17 @@ Before the final response, run one reporting pass. If candidates remain, from th
   - Verificar después de migrar con `list_migrations`, `list_tables` (verbose), la consulta del seed y `get_advisors` (security y performance).
   - **Flujo actual:** no hay stack local inicializado; las migraciones se aplican directo al proyecto remoto vía MCP. Si más adelante se inicializa el CLI, probar en local antes de promover a remoto.
   - El SQL corre en el servidor: nunca leer archivos del servidor ni ejecutar comandos del SO vía SQL (`COPY ... FROM '/path'`, `COPY ... FROM PROGRAM`, `pg_read_file`, `pg_ls_dir`, `lo_import`).
+- **Acceso desde la app (client SDK oficial)**: la aplicación interactúa con la base de datos **siempre** con los paquetes oficiales de Supabase para Next.js (`@supabase/supabase-js` + `@supabase/ssr`), nunca con fetch directo a la REST API ni con el MCP. Setup vigente:
+  - **Env vars** en `.env.local` (gitignored): `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Nunca exponer la `service_role` ni claves secretas en el cliente.
+  - **Clients**:
+    - `utils/supabase/server.ts` → `createClient(cookieStore)` para Server Components, Server Actions y Route Handlers (cliente nuevo por request).
+    - `utils/supabase/client.ts` → `createClient()` para Client Components (browser, singleton).
+    - `utils/supabase/middleware.ts` → `updateSession(request)` refresca y valida la sesión.
+  - **Sesiones**: en Next.js 16 `middleware.ts` está deprecado y renombrado a **`proxy.ts`** (export `proxy()`). `proxy.ts` en la raíz llama a `updateSession` con un `matcher` que excluye estáticos. Usar este patrón, no volver a `middleware.ts`.
+  - **Verificación de identidad en el servidor**: usar `supabase.auth.getClaims()` (valida la firma del JWT y refresca el token si está por expirar). No confiar en `getSession()` ni en `user_metadata` para autorización; `getUser()` solo cuando se necesite el registro fresco del usuario.
+  - **Cookies**: `setAll(cookiesToSet, headers)` recibe además los headers de cache (`Cache-Control`, `Expires`, `Pragma`); aplicarlos a la respuesta para que los CDNs no cacheen respuestas con cookies de sesión. Devolver siempre la respuesta que `setAll` construyó por última vez.
+  - **Permisos**: las tablas (`daycares`, `users`) solo tienen `GRANT` para `authenticated` (`anon` fue revocado a propósito). Peticiones sin sesión devuelven `401 permission denied` — es el comportamiento esperado; el acceso a filas lo deciden las policies de RLS existentes. Cualquier tabla nueva que deba ser accesible desde la app necesita su `GRANT` explícito a `authenticated` + RLS (vía migración MCP).
+  - **División de responsabilidades**: la app (client SDK) solo lee/escribe datos bajo RLS con la publishable key; el MCP sigue siendo la única vía para DDL, seeds y verificación de la DB.
 
 ## Spec Driven Development
 
