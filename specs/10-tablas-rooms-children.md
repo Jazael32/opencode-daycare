@@ -1,6 +1,6 @@
 # SPEC 10 — Tablas `rooms` y `children`, RLS y `/kids` conectado a la base
 
-> **Estado:** Aprobado
+> **Estado:** Completado
 > **Depende de:** SPEC 07 — Tabla `daycares`, SPEC 08 — Tabla `users`, SPEC 09 — Autenticación y protección de rutas
 > **Fecha:** 2026-11-24
 > **Objetivo:** Crear las tablas `public.rooms` y `public.children` (con el enum `child_status`, policies de RLS y seed demo) en el proyecto `aqvrzjfdyqwcfiotnagu`, y conectar la pantalla `/kids` a la base real: listado y secciones por sala leídos de la DB, y el modal "Agregar niño" insertando en `children` vía Server Action, con perfil en `/kids/[id]`.
@@ -199,24 +199,24 @@ export async function createChild(input: {
 
 ## Criterios de aceptación
 
-- [ ] `public.child_status` existe con valores `active`, `archived`.
-- [ ] `public.rooms` existe con exactamente 4 columnas (`id`, `daycare_id`, `name`, `created_at`), FK a `daycares`, índice `rooms_daycare_id_idx` y RLS habilitado.
-- [ ] `public.children` existe con exactamente 11 columnas (`id`, `room_id`, `full_name`, `birth_date`, `enrolled_at`, `medical_notes`, `allergy_tags`, `photo_consent`, `status`, `created_at`, `updated_at`), FK a `rooms`, índice `children_room_id_idx` y RLS habilitado.
-- [ ] `allergy_tags` es `text[] NOT NULL DEFAULT '{}'`; `photo_consent` es `boolean NOT NULL DEFAULT true`; `status` es `child_status NOT NULL DEFAULT 'active'`.
-- [ ] El trigger `children_set_updated_at` avanza `updated_at` en cada update.
-- [ ] Existen exactamente las policies `rooms_select_own_daycare`, `children_select_daycare_staff` y `children_insert_daycare_staff`, todas `to authenticated`.
-- [ ] `anon` no tiene privilegios en `rooms` ni `children`; `authenticated` tiene `select` en ambas e `insert` por columna solo en las 6 columnas de la action.
-- [ ] JWT simulado de staff ve las salas y los niños de su daycare e inserta un niño de prueba (dentro de transacción con `rollback`); JWT sin perfil ve 0 salas/0 niños y su insert falla.
-- [ ] El seed creó `Soles`, `Lunas`, `Estrellas` y los 8 niños del mock en Soles (Mateo con `allergy_tags {maní}` + notas; Tomás con `{lactosa}` + notas), sin UUIDs hardcodeados.
-- [ ] `/kids` renderiza desde la DB: sección `SALA SOLES · 8 niños`, sin secciones vacías, buscador funcional, tarjetas enlazan a `/kids/<uuid>`.
-- [ ] El dropdown SALA del modal lista las salas de la DB con placeholder `Seleccionar sala`.
-- [ ] "Guardar" válido inserta en `children` con `enrolled_at` del día y el niño aparece en `/kids` sin recarga manual (`revalidate`); recargar lo conserva.
-- [ ] "Guardar" con Nombre/Fecha/Sala vacíos o fecha inválida/futura muestra los mismos errores inline de hoy y no cierra el modal.
-- [ ] `/kids/<uuid>` muestra el perfil DB (edad, sala, ingreso, caja de alergias si corresponde) **sin** pill VINCULAR ni padres vinculados; un id desconocido redirige a `/kids`.
-- [ ] Feed, "Nueva publicación", `/activar-cuenta` y vincular padre funcionan sin cambios (sus mocks intactos).
-- [ ] `get_advisors` (security y performance) no reporta hallazgos nuevos por esta spec.
-- [ ] Las 3 migraciones quedaron materializadas en `supabase/migrations/` y commiteadas.
-- [ ] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
+- [x] `public.child_status` existe con valores `active`, `archived`.
+- [x] `public.rooms` existe con exactamente 4 columnas (`id`, `daycare_id`, `name`, `created_at`), FK a `daycares`, índice `rooms_daycare_id_idx` y RLS habilitado.
+- [x] `public.children` existe con exactamente 11 columnas (`id`, `room_id`, `full_name`, `birth_date`, `enrolled_at`, `medical_notes`, `allergy_tags`, `photo_consent`, `status`, `created_at`, `updated_at`), FK a `rooms`, índice `children_room_id_idx` y RLS habilitado.
+- [x] `allergy_tags` es `text[] NOT NULL DEFAULT '{}'`; `photo_consent` es `boolean NOT NULL DEFAULT true`; `status` es `child_status NOT NULL DEFAULT 'active'`.
+- [x] El trigger `children_set_updated_at` avanza `updated_at` en cada update.
+- [x] Existen exactamente las policies `rooms_select_own_daycare`, `children_select_daycare_staff` y `children_insert_daycare_staff`, todas `to authenticated`.
+- [x] `anon` no tiene privilegios en `rooms` ni `children`; `authenticated` tiene `select` en ambas e `insert` por columna solo en las 6 columnas de la action.
+- [x] JWT simulado de staff ve las salas y los niños de su daycare e inserta un niño de prueba (dentro de transacción con `rollback`); JWT sin perfil ve 0 salas/0 niños y su insert falla.
+- [x] El seed creó `Soles`, `Lunas`, `Estrellas` y los 8 niños del mock en Soles (Mateo con `allergy_tags {maní}` + notas; Tomás con `{lactosa}` + notas), sin UUIDs hardcodeados.
+- [x] `/kids` renderiza desde la DB: sección `SALA SOLES · 8 niños`, sin secciones vacías, buscador funcional, tarjetas enlazan a `/kids/<uuid>`.
+- [x] El dropdown SALA del modal lista las salas de la DB con placeholder `Seleccionar sala`.
+- [x] "Guardar" válido inserta en `children` con `enrolled_at` del día y el niño aparece en `/kids` sin recarga manual (`revalidate`); recargar lo conserva.
+- [x] "Guardar" con Nombre/Fecha/Sala vacíos o fecha inválida/futura muestra los mismos errores inline de hoy y no cierra el modal.
+- [x] `/kids/<uuid>` muestra el perfil DB (edad, sala, ingreso, caja de alergias si corresponde) **sin** pill VINCULAR ni padres vinculados; un id desconocido redirige a `/kids`.
+- [x] Feed, "Nueva publicación", `/activar-cuenta` y vincular padre funcionan sin cambios (sus mocks intactos).
+- [x] `get_advisors` (security y performance) no reporta hallazgos nuevos por esta spec.
+- [x] Las 3 migraciones quedaron materializadas en `supabase/migrations/` y commiteadas.
+- [x] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
 
 ## Decisiones
 
