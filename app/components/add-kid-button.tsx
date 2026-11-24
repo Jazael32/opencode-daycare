@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import { AddKidModal } from "@/app/components/add-kid-modal";
-import { notifyKidsUpdated } from "@/app/lib/kid-storage";
+import type { RoomRow } from "@/app/lib/kids-db";
 
-// Header button of /kids: opens the mockup modal as an overlay instead of
-// navigating away. Saving notifies the grid and closes the modal.
-export function AddKidButton() {
+// Header button of /kids: opens the modal with the rooms read from the database.
+export function AddKidButton({ rooms }: { rooms: RoomRow[] }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -34,11 +33,9 @@ export function AddKidButton() {
 
       {open && (
         <AddKidModal
+          rooms={rooms}
           onClose={() => setOpen(false)}
-          onSaved={() => {
-            notifyKidsUpdated();
-            setOpen(false);
-          }}
+          onSaved={() => setOpen(false)}
         />
       )}
     </>

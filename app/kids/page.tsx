@@ -1,29 +1,16 @@
-import { Suspense } from "react";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { AddKidButton } from "@/app/components/add-kid-button";
 import { BottomNav } from "@/app/components/bottom-nav";
 import { KidsGrid } from "@/app/components/kids-grid";
 import { Sidebar } from "@/app/components/sidebar";
 import { getCurrentUserProfile } from "@/app/lib/auth";
-import { kids } from "@/app/lib/mock-kids";
+import type { ChildRow, RoomRow } from "@/app/lib/kids-db";
+import { createClient } from "@/utils/supabase/server";
 
-// The profile read needs request cookies, so the page blocks on the server.
+// The profile and the kids list need request cookies, so the page blocks on
+// the server.
 export const instant = false;
-
-// Stable placeholder for the prerendered shell; the real grid (which reads the
-// current date to show each kid's age) streams in behind this boundary.
-function KidsGridSkeleton() {
-  return (
-    <div aria-hidden className="grid grid-cols-1 gap-[14px] sm:grid-cols-2">
-      {Array.from({ length: kids.length }, (_, index) => (
-        <div
-          key={index}
-          className="h-[80px] rounded-[18px] border border-border bg-surface p-4"
-        />
-      ))}
-    </div>
-  );
-}
 
 export default async function KidsPage() {
   const user = await getCurrentUserProfile();
@@ -31,6 +18,22 @@ export default async function KidsPage() {
   if (!user) {
     redirect("/login");
   }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const [{ data: rooms }, { data: children }] = await Promise.all([
+    supabase
+      .from("rooms")
+      .select("id, name")
+      .order("created_at", { ascending: true })
+      .overrideTypes<RoomRow[], { merge: false }>(),
+    supabase
+      .from("children")
+      .select("id, room_id, full_name, birth_date, enrolled_at, medical_notes, allergy_tags")
+      .order("created_at", { ascending: true })
+      .overrideTypes<ChildRow[], { merge: false }>(),
+  ]);
 
   return (
     <div className="flex min-h-screen bg-bg">
@@ -46,13 +49,11 @@ export default async function KidsPage() {
               </div>
               <h1 className="m-0 font-heading text-[30px] font-semibold text-ink">Niños</h1>
             </div>
-            <AddKidButton />
+            <AddKidButton rooms={rooms ?? []} />
           </div>
 
-          {/* Search box, dynamic room separators, cards */}
-          <Suspense fallback={<KidsGridSkeleton />}>
-            <KidsGrid kids={kids} />
-          </Suspense>
+          {/* Search box, room separators, cards */}
+          <KidsGrid rooms={rooms ?? []} kids={children ?? []} />
         </div>
       </main>
 
