@@ -1,6 +1,6 @@
 # SPEC 09 — Autenticación email/password y protección de rutas
 
-> **Estado:** Aprobado
+> **Estado:** Verificado
 > **Depende de:** SPEC 03 — Login y Activar cuenta, SPEC 08 — Tabla `users`
 > **Fecha:** 2026-11-23
 > **Objetivo:** Implementar login real email/contraseña contra Supabase Auth, proteger todas las rutas excepto `/login` y `/activar-cuenta`, cerrar sesión real, y mostrar la identidad real (perfil `users` + `daycares`) en el sidebar y el saludo del feed.
@@ -59,19 +59,19 @@ Etiquetas de rol para la UI: `staff` → "Maestra", `parent` → "Familia", `adm
 
 ## Criterios de aceptación
 
-- [ ] Sin sesión, `/`, `/kids` y `/kids/[slug]` redirigen a `/login`.
-- [ ] Sin sesión, `/login` y `/activar-cuenta` renderizan normalmente (sin redirect).
-- [ ] Con sesión activa, visitar `/login` redirige a `/`.
-- [ ] El login con `staff@demo.daycare` / `demo1234` navega al feed y la sesión persiste al recargar.
-- [ ] Credenciales inválidas muestran un mensaje de error en `/login` y no navegan a ningún lado.
-- [ ] El CTA deshabilita durante el envío (no permite doble submit).
-- [ ] El saludo del feed muestra el primer nombre real (`Buenas, Caro`) y el nombre del daycare real en el header de la guardería.
-- [ ] El sidebar muestra avatar "C", "Caro Giménez", "Maestra · Guardería Sala Soles" (rol y daycare reales).
-- [ ] El botón "salir" cierra la sesión (`signOut`), limpia las cookies y redirige a `/login`.
-- [ ] Tras el logout, `/` redirige a `/login` (la sesión ya no existe).
-- [ ] El CTA "Activar mi cuenta" de `/activar-cuenta` no navega.
-- [ ] La protección corre en el proxy sin consultas a la DB (solo cookies/claims).
-- [ ] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
+- [x] Sin sesión, `/`, `/kids` y `/kids/[slug]` redirigen a `/login`.
+- [x] Sin sesión, `/login` y `/activar-cuenta` renderizan normalmente (sin redirect).
+- [x] Con sesión activa, visitar `/login` redirige a `/`.
+- [x] El login con `staff@demo.daycare` / `demo1234` navega al feed y la sesión persiste al recargar.
+- [x] Credenciales inválidas muestran un mensaje de error en `/login` y no navegan a ningún lado.
+- [x] El CTA deshabilita durante el envío (no permite doble submit).
+- [x] El saludo del feed muestra el primer nombre real (`Buenas, Caro`) y el nombre del daycare real en el header de la guardería.
+- [x] El sidebar muestra avatar "C", "Caro Giménez", "Maestra · Guardería Sala Soles" (rol y daycare reales).
+- [x] El botón "salir" cierra la sesión (`signOut`), limpia las cookies y redirige a `/login`.
+- [x] Tras el logout, `/` redirige a `/login` (la sesión ya no existe).
+- [x] El CTA "Activar mi cuenta" de `/activar-cuenta` no navega.
+- [x] La protección corre en el proxy sin consultas a la DB (solo cookies/claims).
+- [x] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
 
 ## Decisiones
 
