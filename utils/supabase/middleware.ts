@@ -1,0 +1,50 @@
+import { createServerClient } from "@supabase/ssr";
+import { type NextRequest, NextResponse } from "next/server";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+export async function updateSession(request: NextRequest) {
+  // Create an unmodified response
+  let supabaseResponse = NextResponse.next({
+    request,
+  });
+
+  const supabase = createServerClient(
+    supabaseUrl!,
+    supabaseKey!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet, headers) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          supabaseResponse = NextResponse.next({
+            request,
+          });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
+          // Cache headers passed by @supabase/ssr stop CDNs and reverse
+          // proxies from caching responses that carry session cookies.
+          Object.entries(headers).forEach(([key, value]) =>
+            supabaseResponse.headers.set(key, value)
+          );
+        },
+      },
+    },
+  );
+
+  // IMPORTANT: Do not run code between createServerClient and getClaims().
+  // getClaims() refreshes the auth token when it is close to expiring and
+  // verifies the token signature on every request, which is what keeps
+  // users signed in. Never trust `getSession()` here — it reads the
+  // session cookie without validating it.
+  await supabase.auth.getClaims();
+
+  // IMPORTANT: Return the response that `setAll` last built. An earlier
+  // response does not carry the refreshed cookies, so the user would be
+  // signed out on the next request.
+  return supabaseResponse;
+}
