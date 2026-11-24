@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { ROOMS, type Room } from "@/app/lib/mock-kids";
-import { parseBirthDate, saveNewKid } from "@/app/lib/kid-storage";
+import { startTransition, useEffect, useRef, useState, type FormEvent } from "react";
+import { createChild } from "@/app/kids/actions";
+import type { RoomRow } from "@/app/lib/kids-db";
 
 // Per-field validation messages, shown inline below each field.
 type FieldErrors = {
@@ -35,20 +35,26 @@ function ChevronDown() {
 }
 
 export function AddKidModal({
+  rooms,
   onClose,
   onSaved,
 }: {
+  rooms: RoomRow[];
   onClose: () => void;
   onSaved: () => void;
 }) {
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("");
-  const [room, setRoom] = useState<Room | null>(null);
+  const [roomId, setRoomId] = useState<string | null>(null);
   const [allergies, setAllergies] = useState("");
   const [medicalNotes, setMedicalNotes] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [roomMenuOpen, setRoomMenuOpen] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
+
+  const selectedRoom = rooms.find((room) => room.id === roomId);
 
   // Autofocus on the first field when the modal opens.
   useEffect(() => {
@@ -71,46 +77,43 @@ export function AddKidModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [roomMenuOpen, onClose]);
 
-  function validate(): FieldErrors {
-    const nextErrors: FieldErrors = {};
-    if (!name.trim()) {
-      nextErrors.name = "Ingresa el nombre completo.";
-    }
-
-    const birthDateValue = birthDate.trim();
-    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(birthDateValue)) {
-      nextErrors.birthDate = "Usa el formato dd/mm/aaaa.";
-    } else if (!parseBirthDate(birthDateValue)) {
-      nextErrors.birthDate = "Ingresa una fecha real y no futura.";
-    }
-
-    if (!room) {
-      nextErrors.room = "Selecciona una sala.";
-    }
-
-    return nextErrors;
-  }
-
-  function handleSubmit(event: FormEvent) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const nextErrors = validate();
-    if (Object.keys(nextErrors).length > 0) {
-      setErrors(nextErrors);
-      return;
-    }
-    // Unreachable thanks to validate(), but it narrows `room` for saveNewKid.
-    if (!room) {
+    if (submitting) {
       return;
     }
 
-    saveNewKid({
-      name: name.trim(),
-      birthDate: parseBirthDate(birthDate.trim()) ?? "",
-      room,
-      allergies: allergies.trim(),
-      medicalNotes: medicalNotes.trim(),
+    setSubmitting(true);
+    setErrors({});
+    setFormError(null);
+
+    // The action validates every field; the client only renders its answer.
+    startTransition(async () => {
+      const result = await createChild({
+        fullName: name,
+        birthDate,
+        roomId: roomId ?? "",
+        allergies,
+        medicalNotes,
+      });
+
+      if (!result.ok) {
+        setSubmitting(false);
+        if (result.fieldErrors) {
+          setErrors({
+            name: result.fieldErrors.name,
+            birthDate: result.fieldErrors.birthDate,
+            room: result.fieldErrors.roomId,
+          });
+        }
+        if (result.error) {
+          setFormError(result.error);
+        }
+        return;
+      }
+
+      onSaved();
     });
-    onSaved();
   }
 
   return (
@@ -147,13 +150,23 @@ export function AddKidModal({
           <button
             type="submit"
             form="add-kid-form"
-            className="text-[15px] font-extrabold text-[#D9583C]"
+            disabled={submitting}
+            className="text-[15px] font-extrabold text-[#D9583C] disabled:opacity-60"
           >
-            Guardar
+            {submitting ? "Guardando…" : "Guardar"}
           </button>
         </div>
 
         <form id="add-kid-form" onSubmit={handleSubmit} className="px-[26px] py-6">
+          {formError && (
+            <p
+              role="alert"
+              className="mb-[18px] rounded-[12px] bg-[#FBDAD6] px-4 py-3 text-[13px] font-bold text-[#C5413A]"
+            >
+              {formError}
+            </p>
+          )}
+
           {/* NOMBRE COMPLETO */}
           <div className={labelClasses}>NOMBRE COMPLETO</div>
           <input
@@ -197,11 +210,11 @@ export function AddKidModal({
                 aria-haspopup="listbox"
                 aria-expanded={roomMenuOpen}
                 className={`${inputClasses} flex items-center gap-2 text-left ${
-                  room ? "font-bold" : ""
+                  selectedRoom ? "font-bold" : ""
                 }`}
               >
-                <span className={room ? "" : "text-[#B6A99B]"}>
-                  {room ?? "Seleccionar sala"}
+                <span className={selectedRoom ? "" : "text-[#B6A99B]"}>
+                  {selectedRoom?.name ?? "Seleccionar sala"}
                 </span>
                 <span className="flex-1" />
                 <ChevronDown />
@@ -226,23 +239,23 @@ export function AddKidModal({
                     role="listbox"
                     className="absolute top-full right-0 left-0 z-10 mt-1 overflow-hidden rounded-[14px] border border-[#EADFD0] bg-white shadow-[0_14px_34px_-18px_rgba(63,54,46,0.4)]"
                   >
-                  {ROOMS.map((option) => (
+                  {rooms.map((room) => (
                     <button
-                      key={option}
+                      key={room.id}
                       type="button"
                       role="option"
-                      aria-selected={room === option}
+                      aria-selected={roomId === room.id}
                       onClick={() => {
-                        setRoom(option);
+                        setRoomId(room.id);
                         setRoomMenuOpen(false);
                       }}
                       className={`block w-full px-4 py-[11px] text-left text-[15px] ${
-                        room === option
+                        roomId === room.id
                           ? "bg-[#F6ECDF] font-bold text-ink"
                           : "text-ink hover:bg-[#F6ECDF]"
                       }`}
                     >
-                      {option}
+                      {room.name}
                     </button>
                   ))}
                   </div>

@@ -1,10 +1,29 @@
 import Link from "next/link";
-import { formatBirthDate, type Kid } from "@/app/lib/mock-kids";
-import { LinkedParents } from "@/app/components/linked-parents";
+import type { ReactNode } from "react";
 
-// Pure profile presentation, shared by the mock kids (server) and the stored
-// kids (client). The age arrives computed so this module stays sync.
-export function KidProfileView({ kid, age }: { kid: Kid; age: number }) {
+// Display data for a child profile. The database page and the legacy mock
+// pages both map their rows into this shape before rendering.
+export type KidProfileData = {
+  name: string;
+  initial: string;
+  avatarColors: { bg: string; fg: string };
+  age: number;
+  roomName: string;
+  birthDateLabel: string;
+  enrolledLabel: string;
+  allergyTags: string[];
+  medicalNotes: string | null;
+};
+
+// Pure profile presentation. `linkedParents` is only passed by the legacy mock
+// flows: the database profile has no parent_children table yet.
+export function KidProfileView({
+  kid,
+  linkedParents,
+}: {
+  kid: KidProfileData;
+  linkedParents?: ReactNode;
+}) {
   return (
     <div className="flex flex-wrap items-start gap-[26px]">
       {/* Left column: header, allergy box, data card */}
@@ -21,7 +40,7 @@ export function KidProfileView({ kid, age }: { kid: Kid; age: number }) {
               {kid.name}
             </h1>
             <p className="mt-[3px] mb-0 text-[15px] text-[#94887B]">
-              {age} años · Sala {kid.room}
+              {kid.age} años · Sala {kid.roomName}
             </p>
           </span>
           <Link
@@ -32,7 +51,7 @@ export function KidProfileView({ kid, age }: { kid: Kid; age: number }) {
           </Link>
         </div>
 
-        {kid.allergy && (
+        {kid.allergyTags.length > 0 && (
           <div className="flex gap-[14px] rounded-2xl bg-[#FBDAD6] px-[18px] py-4">
             <span className="flex h-10 w-10 flex-none items-center justify-center rounded-[11px] bg-[#F4A8A0]">
               <svg
@@ -54,11 +73,13 @@ export function KidProfileView({ kid, age }: { kid: Kid; age: number }) {
                 Alergias y notas
               </span>
               <span className="block text-[13px] font-extrabold tracking-[0.6px] text-[#B25249]">
-                {kid.allergy.label}
+                {kid.allergyTags
+                  .map((tag) => tag.toLocaleUpperCase("es"))
+                  .join(", ")}
               </span>
-              {kid.allergy.notes && (
+              {kid.medicalNotes && (
                 <span className="mt-[4px] block text-[14.5px] leading-[1.5] text-[#B25249]">
-                  {kid.allergy.notes}
+                  {kid.medicalNotes}
                 </span>
               )}
             </span>
@@ -69,21 +90,21 @@ export function KidProfileView({ kid, age }: { kid: Kid; age: number }) {
           <div className="flex justify-between border-b border-divider px-[18px] py-[15px]">
             <span className="text-[14.5px] text-[#94887B]">Fecha de nacimiento</span>
             <span className="text-[14.5px] font-extrabold text-ink">
-              {formatBirthDate(kid.birthDate)}
+              {kid.birthDateLabel}
             </span>
           </div>
           <div className="flex justify-between border-b border-divider px-[18px] py-[15px]">
             <span className="text-[14.5px] text-[#94887B]">Sala</span>
-            <span className="text-[14.5px] font-extrabold text-ink">{kid.room}</span>
+            <span className="text-[14.5px] font-extrabold text-ink">{kid.roomName}</span>
           </div>
           <div className="flex justify-between px-[18px] py-[15px]">
             <span className="text-[14.5px] text-[#94887B]">Ingreso</span>
-            <span className="text-[14.5px] font-extrabold text-ink">{kid.enrolled}</span>
+            <span className="text-[14.5px] font-extrabold text-ink">{kid.enrolledLabel}</span>
           </div>
         </div>
       </div>
 
-      {/* Right column: day summary and linked parents */}
+      {/* Right column: day summary and, for the mock flows, linked parents */}
       <div className="flex w-[300px] flex-none flex-col gap-[14px]">
         <Link
           href="/"
@@ -105,7 +126,7 @@ export function KidProfileView({ kid, age }: { kid: Kid; age: number }) {
           Resumen del día
         </Link>
 
-        <LinkedParents kid={kid} />
+        {linkedParents}
       </div>
     </div>
   );
