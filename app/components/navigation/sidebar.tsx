@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { LogoutButton } from "@/app/components/logout-button";
-import { NewPostButton } from "@/app/components/new-post-button";
+import { LogoutButton } from "@/app/components/navigation/logout-button";
+import { NewPostButton } from "@/app/components/posts/new-post-button";
 import type { UserProfile, UserRole } from "@/app/lib/auth";
 
 // Sections that can be highlighted as the current one; defaults to Feed.

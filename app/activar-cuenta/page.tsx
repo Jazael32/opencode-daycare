@@ -1,4 +1,4 @@
-import { ActivationForm } from "@/app/components/activation-form";
+import { ActivationForm } from "@/app/components/login/activation-form";
 import { normalizeCode } from "@/app/lib/invitation-code";
 
 // The email link (?code=...) must preload the code field, so the page is
