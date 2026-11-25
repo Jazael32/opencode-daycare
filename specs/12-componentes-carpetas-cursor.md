@@ -1,6 +1,6 @@
 # SPEC 12 — Organización de componentes en carpetas por área y cursor pointer global
 
-> **Estado:** Verificado
+> **Estado:** Implementado
 > **Depende de:** Ninguno (refactor transversal sobre los componentes que produjeron SPEC 01–06 y 09–11)
 > **Fecha:** 2026-11-24
 > **Objetivo:** Reorganizar los 15 componentes planos de `app/components/` en 4 subcarpetas por área (`kids/`, `login/`, `navigation/`, `posts/`) actualizando todos los imports, y agregar una regla CSS global en `globals.css` para que todo botón interactivo muestre el cursor pointer al hacer hover.
