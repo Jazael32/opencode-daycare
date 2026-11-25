@@ -82,8 +82,11 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Signed-in users never see the auth screens (SPEC 09 for /login,
-  // SPEC 11 for /activar-cuenta).
-  if (hasSession && (pathname === "/login" || pathname === "/activar-cuenta")) {
+  // SPEC 11 for /activar-cuenta). Server Actions posted to these routes must
+  // pass through: the acceptInvitation action runs right after signUp, when
+  // the session already exists but the user has not navigated anywhere yet.
+  const isServerAction = request.headers.has("next-action");
+  if (hasSession && !isServerAction && (pathname === "/login" || pathname === "/activar-cuenta")) {
     return redirectTo(request, "/", supabaseResponse);
   }
 
