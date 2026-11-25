@@ -122,25 +122,25 @@ Flujo de aceptación (orden): el cliente hace `signUp` (crea `auth.users` + `use
 
 ## Criterios de aceptación
 
-- [ ] `public.relationship_type` existe con valores `father`, `mother`, `guardian`; `public.invitation_status` con `pending`, `accepted`, `expired`, `cancelled`.
-- [ ] `public.invitations` existe con exactamente 11 columnas y `public.parent_children` con 5; FKs, UNIQUE (`parent_id`, `child_id`) e índices según el data model; RLS habilitado en ambas.
-- [ ] El índice único parcial impide dos invitaciones `pending`/`accepted` con el mismo `(child_id, email)`.
-- [ ] Existen exactamente las 7 policies listadas, todas `to authenticated`; `anon` no tiene privilegios en las tablas pero puede ejecutar `signup_lookup`.
-- [ ] `authenticated` solo tiene `update (status, accepted_at)` en `invitations` y `insert` por columna según el data model.
-- [ ] Las pruebas RLS con JWT simulado pasan: staff ve/inserta solo su daycare; `signup_lookup` devuelve datos solo con match exacto código+email; una `pending` vencida se marca `expired`; el flujo aceptación → vínculo funciona con JWT de padre.
-- [ ] El modal reproduce el mockup de SPEC 05 y valida inline nombre vacío, email inválido, email ya invitado para ese niño y email con cuenta existente (no cierra en ningún caso de error).
-- [ ] Un envío válido crea la invitación (`pending`, `expires_at` = +7 días, código de 5 chars sin ambiguos) y el padre aparece como PENDIENTE en el perfil sin recarga manual.
-- [ ] Tras crear, el modal muestra el código y "Vence en 7 días"; si Resend falla, muestra el aviso "compartí el código {CÓDIGO} manualmente" y la invitación queda persistida.
-- [ ] En `/activar-cuenta`, código+email con match muestran "Te invitaron a seguir a {niño} · Sala {sala}"; sin match, la caja queda en el texto estático; el link del correo precarga el código.
-- [ ] Un registro válido crea la cuenta (`role = 'parent'`, `full_name` y `daycare_id` de la invitación), marca la invitación `accepted`, crea la fila en `parent_children` con su parentesco y redirige a `/` logueado; el perfil muestra al padre con pill ACTIVA.
-- [ ] Código inexistente, email que no corresponde o invitación vencida muestran error inline y no navegan; el vencido queda `status = 'expired'` y el aceptado no reválida.
-- [ ] Contraseña <8, confirmación sin coincidir o checkbox sin marcar muestran error inline y no envían.
-- [ ] Un email ya registrado en Auth muestra "ya tenés cuenta, iniciá sesión" y no crea nada.
-- [ ] Con sesión activa, visitar `/activar-cuenta` redirige a `/`.
-- [ ] `app/lib/parent-links.ts`, `kid-profile.tsx` y `stored-kid-profile.tsx` fueron eliminados y nada los referencia; feed, `/kids` y login no cambiaron.
-- [ ] `get_advisors` (security y performance) no reporta hallazgos nuevos por esta spec.
-- [ ] Las 2 migraciones quedaron materializadas en `supabase/migrations/` y commiteadas.
-- [ ] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
+- [x] `public.relationship_type` existe con valores `father`, `mother`, `guardian`; `public.invitation_status` con `pending`, `accepted`, `expired`, `cancelled`.
+- [x] `public.invitations` existe con exactamente 11 columnas y `public.parent_children` con 5; FKs, UNIQUE (`parent_id`, `child_id`) e índices según el data model; RLS habilitado en ambas.
+- [x] El índice único parcial impide dos invitaciones `pending`/`accepted` con el mismo `(child_id, email)`.
+- [x] Existen exactamente las 7 policies listadas, todas `to authenticated`; `anon` no tiene privilegios en las tablas pero puede ejecutar `signup_lookup`.
+- [x] `authenticated` solo tiene `update (status, accepted_at)` en `invitations` y `insert` por columna según el data model.
+- [x] Las pruebas RLS con JWT simulado pasan: staff ve/inserta solo su daycare; `signup_lookup` devuelve datos solo con match exacto código+email; una `pending` vencida se marca `expired`; el flujo aceptación → vínculo funciona con JWT de padre.
+- [x] El modal reproduce el mockup de SPEC 05 y valida inline nombre vacío, email inválido, email ya invitado para ese niño y email con cuenta existente (no cierra en ningún caso de error).
+- [x] Un envío válido crea la invitación (`pending`, `expires_at` = +7 días, código de 5 chars sin ambiguos) y el padre aparece como PENDIENTE en el perfil sin recarga manual.
+- [x] Tras crear, el modal muestra el código y "Vence en 7 días"; si Resend falla, muestra el aviso "compartí el código {CÓDIGO} manualmente" y la invitación queda persistida.
+- [x] En `/activar-cuenta`, código+email con match muestran "Te invitaron a seguir a {niño} · Sala {sala}"; sin match, la caja queda en el texto estático; el link del correo precarga el código.
+- [x] Un registro válido crea la cuenta (`role = 'parent'`, `full_name` y `daycare_id` de la invitación), marca la invitación `accepted`, crea la fila en `parent_children` con su parentesco y redirige a `/` logueado; el perfil muestra al padre con pill ACTIVA.
+- [x] Código inexistente, email que no corresponde o invitación vencida muestran error inline y no navegan; el vencido queda `status = 'expired'` y el aceptado no reválida.
+- [x] Contraseña <8, confirmación sin coincidir o checkbox sin marcar muestran error inline y no envían.
+- [x] Un email ya registrado en Auth muestra "ya tenés cuenta, iniciá sesión" y no crea nada.
+- [x] Con sesión activa, visitar `/activar-cuenta` redirige a `/`.
+- [x] `app/lib/parent-links.ts`, `kid-profile.tsx` y `stored-kid-profile.tsx` fueron eliminados y nada los referencia; feed, `/kids` y login no cambiaron.
+- [x] `get_advisors` (security y performance) no reporta hallazgos nuevos por esta spec. *(Nota: los WARN remanentes son por diseño según las Decisiones de este spec — `signup_lookup` ejecutable por anon y `auth_email_exists` por authenticated, ambos `SECURITY DEFINER` en `public` con grants manuales y `search_path` fijo — y `multiple_permissive_policies` refleja las 2 policies SELECT exactas que exige el data model. El hallazgo INFO `unindexed_foreign_keys` de `invited_by` se corrigió con `add_invited_by_index_to_invitations`; `unused_index` es esperable en tablas nuevas. Los hallazgos pre-existentes de SPEC 10 (`rls_auto_enable`, leaked password protection, policies de `users`) no cambiaron.)*
+- [x] Las 2 migraciones quedaron materializadas en `supabase/migrations/` y commiteadas. *(Materializadas las 5 aplicadas en total: las 2 del plan + 3 correctivas/de ajuste; falta el commit, que hace el humano.)*
+- [x] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
 
 ## Decisiones
 
