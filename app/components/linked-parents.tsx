@@ -1,78 +1,69 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
-import {
-  AVATAR_PALETTE,
-  parentStatusColors,
-  parentStatusLabels,
-  type Kid,
-  type Parent,
-} from "@/app/lib/mock-kids";
-import {
-  getParentLinks,
-  subscribeToParentLinks,
-  type ParentLink,
-} from "@/app/lib/parent-links";
+import { useState } from "react";
+
 import { LinkParentModal } from "@/app/components/link-parent-modal";
+import { AVATAR_PALETTE } from "@/app/lib/mock-kids";
+import { relationshipLabel } from "@/app/lib/relationship";
 
-// Stable empty snapshot so the server render and the hydration pass match the
-// mock-only profile; stored invitations mix in after mount.
-const EMPTY_LINKS: ParentLink[] = [];
+// One row of the PADRES VINCULADOS card, computed on the server from
+// `invitations` and accepted `parent_children` rows.
+export type LinkedParentRow = {
+  key: string;
+  name: string;
+  relationship: string; // DB enum relationship_type as text
+  status: "pending" | "accepted" | "expired";
+};
 
-function getServerLinks(): ParentLink[] {
-  return EMPTY_LINKS;
-}
+function ParentRow({ row, index }: { row: LinkedParentRow; index: number }) {
+  const colors = AVATAR_PALETTE[index % AVATAR_PALETTE.length];
 
-// Stored invitation → the same shape the mock parents already use.
-function toParent(link: ParentLink, index: number): Parent {
-  return {
-    name: link.name,
-    initial: link.name.charAt(0).toLocaleUpperCase("es"),
-    relation: link.relation,
-    status: link.status,
-    avatarColors: AVATAR_PALETTE[index % AVATAR_PALETTE.length],
-  };
-}
+  const pill = {
+    pending: { label: "PENDIENTE", background: "#FBF1D6", color: "#A88526" },
+    accepted: { label: "ACTIVA", background: "#CFEBD8", color: "#3E9B6C" },
+    expired: { label: "VENCIDA", background: "#FBDAD6", color: "#C5413A" },
+  }[row.status];
 
-function ParentRow({ parent }: { parent: Parent }) {
+  const subtitle =
+    row.status === "pending"
+      ? `${relationshipLabel(row.relationship)} · invitación enviada`
+      : relationshipLabel(row.relationship);
+
   return (
     <div className="flex items-center gap-3">
       <span
         className="flex h-10 w-10 flex-none items-center justify-center rounded-full font-heading text-[16px] font-semibold"
-        style={{ background: parent.avatarColors.bg, color: parent.avatarColors.fg }}
+        style={{ background: colors.bg, color: colors.fg }}
       >
-        {parent.initial}
+        {row.name.charAt(0).toLocaleUpperCase("es")}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[14.5px] font-extrabold text-ink">
-          {parent.name}
-        </span>
-        <span className="block text-[12.5px] text-muted">
-          {parent.relation} · {parentStatusLabels[parent.status]}
-        </span>
+        <span className="block text-[14.5px] font-extrabold text-ink">{row.name}</span>
+        <span className="block text-[12.5px] text-muted">{subtitle}</span>
       </span>
       <span
         className="flex-none rounded-full px-[9px] py-[4px] text-[10.5px] font-extrabold"
-        style={{
-          background: parentStatusColors[parent.status].background,
-          color: parentStatusColors[parent.status].text,
-        }}
+        style={{ background: pill.background, color: pill.color }}
       >
-        {parent.status === "active" ? "ACTIVA" : "PENDIENTE"}
+        {pill.label}
       </span>
     </div>
   );
 }
 
-// Linked parents card: mock parents plus invitations stored in localStorage,
-// with the button that opens the "Vincular padre" modal.
-export function LinkedParents({ kid }: { kid: Kid }) {
+// Linked parents card fed by the database, with the button that opens the
+// "Vincular padre" modal. After a successful save the Server Action
+// revalidates the profile path, so new rows show up without a manual reload.
+export function LinkedParents({
+  childId,
+  childName,
+  rows,
+}: {
+  childId: string;
+  childName: string;
+  rows: LinkedParentRow[];
+}) {
   const [modalOpen, setModalOpen] = useState(false);
-  const links = useSyncExternalStore(
-    subscribeToParentLinks,
-    () => getParentLinks(kid.slug),
-    getServerLinks,
-  );
 
   return (
     <>
@@ -81,14 +72,8 @@ export function LinkedParents({ kid }: { kid: Kid }) {
           PADRES VINCULADOS
         </div>
         <div className="flex flex-col gap-[14px]">
-          {kid.parents.map((parent) => (
-            <ParentRow key={`mock-${parent.name}`} parent={parent} />
-          ))}
-          {links.map((link, index) => (
-            <ParentRow
-              key={`link-${link.email}`}
-              parent={toParent(link, index)}
-            />
+          {rows.map((row, index) => (
+            <ParentRow key={row.key} row={row} index={index} />
           ))}
           <button
             type="button"
@@ -117,7 +102,11 @@ export function LinkedParents({ kid }: { kid: Kid }) {
       </div>
 
       {modalOpen && (
-        <LinkParentModal kid={kid} onClose={() => setModalOpen(false)} />
+        <LinkParentModal
+          childId={childId}
+          childName={childName}
+          onClose={() => setModalOpen(false)}
+        />
       )}
     </>
   );
