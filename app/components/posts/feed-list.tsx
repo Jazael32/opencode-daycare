@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { PostCard } from "@/app/components/post-card";
+import { PostCard } from "@/app/components/posts/post-card";
 import { feedPosts, type FeedPost } from "@/app/lib/mock-feed";
 import {
   getStoredPosts,

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { LinkParentModal } from "@/app/components/link-parent-modal";
+import { LinkParentModal } from "@/app/components/kids/link-parent-modal";
 import { AVATAR_PALETTE } from "@/app/lib/mock-kids";
 import { relationshipLabel } from "@/app/lib/relationship";
 

@@ -1,10 +1,10 @@
 import { cookies } from "next/headers";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
-import { AddKidButton } from "@/app/components/add-kid-button";
-import { BottomNav } from "@/app/components/bottom-nav";
-import { KidsGrid } from "@/app/components/kids-grid";
-import { Sidebar } from "@/app/components/sidebar";
+import { AddKidButton } from "@/app/components/kids/add-kid-button";
+import { BottomNav } from "@/app/components/navigation/bottom-nav";
+import { KidsGrid } from "@/app/components/kids/kids-grid";
+import { Sidebar } from "@/app/components/navigation/sidebar";
 import { getCurrentUserProfile } from "@/app/lib/auth";
 import type { ChildRow, RoomRow } from "@/app/lib/kids-db";
 import { createClient } from "@/utils/supabase/server";

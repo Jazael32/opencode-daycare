@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { NewPostModal } from "@/app/components/new-post-modal";
+import { NewPostModal } from "@/app/components/posts/new-post-modal";
 import { user } from "@/app/lib/mock-feed";
 import { saveNewPost, type NewPostDraft } from "@/app/lib/post-storage";
 

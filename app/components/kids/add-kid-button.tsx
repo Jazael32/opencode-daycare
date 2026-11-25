@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AddKidModal } from "@/app/components/add-kid-modal";
+import { AddKidModal } from "@/app/components/kids/add-kid-modal";
 import type { RoomRow } from "@/app/lib/kids-db";
 
 // Header button of /kids: opens the modal with the rooms read from the database.

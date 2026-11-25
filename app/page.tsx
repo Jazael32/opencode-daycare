@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import { BottomNav } from "@/app/components/bottom-nav";
-import { FeedList } from "@/app/components/feed-list";
-import { NewPostButton } from "@/app/components/new-post-button";
-import { Sidebar } from "@/app/components/sidebar";
+import { BottomNav } from "@/app/components/navigation/bottom-nav";
+import { FeedList } from "@/app/components/posts/feed-list";
+import { NewPostButton } from "@/app/components/posts/new-post-button";
+import { Sidebar } from "@/app/components/navigation/sidebar";
 import { getCurrentUserProfile } from "@/app/lib/auth";
 
 // Reading the profile needs request cookies, so the page blocks on the server

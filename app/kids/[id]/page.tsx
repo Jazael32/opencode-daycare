@@ -2,10 +2,10 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
-import { BottomNav } from "@/app/components/bottom-nav";
-import { Sidebar } from "@/app/components/sidebar";
-import { KidProfileView } from "@/app/components/kid-profile-view";
-import { LinkedParents, type LinkedParentRow } from "@/app/components/linked-parents";
+import { BottomNav } from "@/app/components/navigation/bottom-nav";
+import { Sidebar } from "@/app/components/navigation/sidebar";
+import { KidProfileView } from "@/app/components/kids/kid-profile-view";
+import { LinkedParents, type LinkedParentRow } from "@/app/components/kids/linked-parents";
 import { getCurrentUserProfile } from "@/app/lib/auth";
 import {
   avatarColorsForId,
