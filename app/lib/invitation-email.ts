@@ -1,7 +1,6 @@
-const APP_URL = process.env.APP_URL ?? "http://localhost:3000";
+import { RELATIONSHIP_LABELS, type Relationship } from "./relationship";
 
-/** UI labels for the invitation relationship values (mother/father/guardian). */
-export type RelationshipLabel = "Mamá" | "Papá" | "Tutor/a";
+const APP_URL = process.env.APP_URL ?? "http://localhost:3000";
 
 export const getActivationUrl = (code: string): string =>
   `${APP_URL}/activar-cuenta?code=${encodeURIComponent(code)}`;
@@ -10,7 +9,7 @@ export type InvitationEmailInput = {
   daycareName: string;
   childName: string;
   parentName: string;
-  relationshipLabel: RelationshipLabel;
+  relationship: Relationship;
   code: string;
 };
 
@@ -30,7 +29,8 @@ const escapeHtml = (value: string): string =>
     .replace(/'/g, "&#39;");
 
 export const buildInvitationEmail = (input: InvitationEmailInput): InvitationEmail => {
-  const { daycareName, childName, parentName, relationshipLabel, code } = input;
+  const { daycareName, childName, parentName, relationship, code } = input;
+  const relationshipLabel = RELATIONSHIP_LABELS[relationship];
   const activationUrl = getActivationUrl(code);
 
   const subject = `Te invitaron a seguir a ${escapeHtml(childName)} en ${escapeHtml(daycareName)}`;

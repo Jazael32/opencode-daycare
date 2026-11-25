@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { BottomNav } from "@/app/components/bottom-nav";
 import { Sidebar } from "@/app/components/sidebar";
 import { KidProfileView } from "@/app/components/kid-profile-view";
+import { LinkedParents, type LinkedParentRow } from "@/app/components/linked-parents";
 import { getCurrentUserProfile } from "@/app/lib/auth";
 import {
   avatarColorsForId,
@@ -16,6 +17,52 @@ import { createClient } from "@/utils/supabase/server";
 
 // The profile read needs request cookies, so the page blocks on the server.
 export const instant = false;
+
+type InvitationRow = {
+  id: string;
+  full_name: string;
+  relationship: string;
+  status: string;
+};
+
+type ParentChildRow = {
+  id: string;
+  relationship: string;
+  users: { full_name: string } | null;
+};
+
+function buildLinkedParentRows(
+  invitations: InvitationRow[],
+  links: ParentChildRow[],
+): LinkedParentRow[] {
+  // ACTIVA first (accepted links), then PENDIENTE, then VENCIDA.
+  const active = links.map((link) => ({
+    key: `link-${link.id}`,
+    name: link.users?.full_name ?? "",
+    relationship: link.relationship,
+    status: "accepted" as const,
+  }));
+
+  const pending = invitations
+    .filter((invitation) => invitation.status === "pending")
+    .map((invitation) => ({
+      key: `inv-${invitation.id}`,
+      name: invitation.full_name,
+      relationship: invitation.relationship,
+      status: "pending" as const,
+    }));
+
+  const expired = invitations
+    .filter((invitation) => invitation.status === "expired")
+    .map((invitation) => ({
+      key: `inv-${invitation.id}`,
+      name: invitation.full_name,
+      relationship: invitation.relationship,
+      status: "expired" as const,
+    }));
+
+  return [...active, ...pending, ...expired];
+}
 
 export default async function KidProfilePage({
   params,
@@ -49,6 +96,22 @@ export default async function KidProfilePage({
   if (!child) {
     redirect("/kids");
   }
+
+  // Invitations of this child (staff sees them via RLS). Accepted ones are
+  // rendered from parent_children instead, so only pending/expired matter.
+  const [{ data: invitations }, { data: links }] = await Promise.all([
+    supabase
+      .from("invitations")
+      .select("id, full_name, relationship, status")
+      .eq("child_id", id)
+      .in("status", ["pending", "expired"])
+      .overrideTypes<InvitationRow[], { merge: false }>(),
+    supabase
+      .from("parent_children")
+      .select("id, relationship, users(full_name)")
+      .eq("child_id", id)
+      .overrideTypes<ParentChildRow[], { merge: false }>(),
+  ]);
 
   return (
     <div className="flex min-h-screen bg-bg">
@@ -88,6 +151,13 @@ export default async function KidProfilePage({
               allergyTags: child.allergy_tags,
               medicalNotes: child.medical_notes,
             }}
+            linkedParents={
+              <LinkedParents
+                childId={child.id}
+                childName={child.full_name}
+                rows={buildLinkedParentRows(invitations ?? [], links ?? [])}
+              />
+            }
           />
         </div>
       </main>

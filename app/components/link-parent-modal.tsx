@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { RELATIONS, generateParentLinkCode, getParentLinks, saveParentLink, type Relation } from "@/app/lib/parent-links";
-import type { Kid } from "@/app/lib/mock-kids";
+import { useEffect, useRef, useState, useTransition, type FormEvent } from "react";
+
+import { createInvitation } from "@/app/kids/actions";
+import { RELATIONSHIP_OPTIONS, type Relationship } from "@/app/lib/relationship";
 
 // Per-field validation messages, shown inline below each field.
 type FieldErrors = {
@@ -10,13 +11,16 @@ type FieldErrors = {
   email?: string;
 };
 
+type SuccessState = {
+  code: string;
+  emailSent: boolean;
+};
+
 // Input colors taken verbatim from vincular-padre.dc.html.
 const inputClasses =
   "w-full rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-[13px] text-[15px] text-ink outline-none placeholder:text-[#B6A99B]";
 const labelClasses =
   "mb-2 block text-[12px] font-extrabold tracking-[0.7px] text-[#94887B]";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function InfoIcon() {
   return (
@@ -38,18 +42,21 @@ function InfoIcon() {
 }
 
 export function LinkParentModal({
-  kid,
+  childId,
+  childName,
   onClose,
 }: {
-  kid: Kid;
+  childId: string;
+  childName: string;
   onClose: () => void;
 }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [relation, setRelation] = useState<Relation>("Mamá");
-  // Generated once per opening; typed through saveParentLink to persist it.
-  const [code] = useState(() => generateParentLinkCode());
+  const [relation, setRelation] = useState<Relationship>("mother");
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [generalError, setGeneralError] = useState("");
+  const [success, setSuccess] = useState<SuccessState | null>(null);
+  const [isPending, startTransition] = useTransition();
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   // Autofocus on the first field when the modal opens.
@@ -77,16 +84,8 @@ export function LinkParentModal({
     const emailValue = email.trim();
     if (!emailValue) {
       nextErrors.email = "Ingresa el email.";
-    } else if (!EMAIL_PATTERN.test(emailValue)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
       nextErrors.email = "Ingresa un email válido.";
-    } else {
-      const normalizedEmail = emailValue.toLocaleLowerCase("es");
-      const alreadyLinked = getParentLinks(kid.slug).some(
-        (link) => link.email === normalizedEmail,
-      );
-      if (alreadyLinked) {
-        nextErrors.email = "Este email ya está vinculado a este niño.";
-      }
     }
 
     return nextErrors;
@@ -95,25 +94,28 @@ export function LinkParentModal({
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     const nextErrors = validate();
+    setErrors(nextErrors);
+    setGeneralError("");
     if (Object.keys(nextErrors).length > 0) {
-      setErrors(nextErrors);
       return;
     }
 
-    try {
-      saveParentLink(kid.slug, {
-        name: name.trim(),
-        email: email.trim(),
+    startTransition(async () => {
+      const result = await createInvitation({
+        childId,
+        fullName: name,
+        email,
         relation,
-        code,
       });
-    } catch {
-      // Race guard: storage always re-checks the duplicate email.
-      setErrors({ email: "Este email ya está vinculado a este niño." });
-      return;
-    }
 
-    onClose();
+      if (result.ok) {
+        setSuccess({ code: result.code, emailSent: result.emailSent });
+        return;
+      }
+
+      setErrors(result.fieldErrors ?? {});
+      setGeneralError(result.error ?? "");
+    });
   }
 
   return (
@@ -141,7 +143,7 @@ export function LinkParentModal({
             >
               Vincular padre
             </div>
-            <div className="text-[13px] text-[#A89A8B]">a {kid.name}</div>
+            <div className="text-[13px] text-[#A89A8B]">a {childName}</div>
           </div>
           <button
             type="button"
@@ -164,106 +166,133 @@ export function LinkParentModal({
           </button>
         </div>
 
-        <form noValidate onSubmit={handleSubmit} className="px-[26px] py-[22px]">
-          {/* Informative box */}
-          <div className="mb-5 flex gap-[11px] rounded-[14px] bg-[#E3ECFB] px-4 py-[13px]">
-            <InfoIcon />
-            <span className="text-[13.5px] leading-[1.45] text-[#3F5694]">
-              Le enviaremos un correo con un código para que active su cuenta.
-              Solo verá el feed de {kid.name}.
-            </span>
-          </div>
+        {success ? (
+          /* Success: server-generated code + email delivery status */
+          <div className="px-[26px] py-[22px]">
+            <div className="mb-5 rounded-[14px] bg-[#CFEBD8] px-4 py-[13px] text-[13.5px] font-extrabold text-[#3E9B6C]">
+              ¡Invitación enviada!
+            </div>
 
-          {/* NOMBRE DEL PADRE/MADRE */}
-          <div className={labelClasses}>NOMBRE DEL PADRE/MADRE</div>
-          <input
-            ref={nameInputRef}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Ej. Diego Fernández"
-            aria-invalid={Boolean(errors.name)}
-            className={`${inputClasses} mb-[18px]`}
-          />
-          {errors.name && (
-            <p className="-mt-[14px] mb-[14px] text-[12.5px] font-bold text-[#C5413A]">
-              {errors.name}
+            <div className="mb-5 rounded-[16px] border-[1.5px] border-dashed border-[#E6D08A] bg-[#FBF1D6] p-[18px] text-center">
+              <div className="mb-2 text-[12px] font-extrabold tracking-[0.7px] text-[#A88526]">
+                CÓDIGO DE INVITACIÓN
+              </div>
+              <div className="font-heading text-[34px] font-semibold tracking-[7px] text-[#8A7234]">
+                {success.code}
+              </div>
+              <div className="mt-[6px] text-[13px] text-[#A88526]">Vence en 7 días</div>
+            </div>
+
+            <p className="mb-5 text-[13.5px] leading-[1.5] text-[#6E6359]">
+              {success.emailSent
+                ? `Le enviamos el correo a ${email.trim()}. También te dejamos el código por si quiere usarlo directamente.`
+                : `El correo no se pudo enviar — compartí el código ${success.code} manualmente.`}
             </p>
-          )}
 
-          {/* EMAIL */}
-          <div className={labelClasses}>EMAIL</div>
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="correo@ejemplo.com"
-            aria-invalid={Boolean(errors.email)}
-            className={`${inputClasses} mb-[18px]`}
-          />
-          {errors.email && (
-            <p className="-mt-[14px] mb-[14px] text-[12.5px] font-bold text-[#C5413A]">
-              {errors.email}
-            </p>
-          )}
-
-          {/* PARENTESCO */}
-          <div className="mb-[10px] block text-[12px] font-extrabold tracking-[0.7px] text-[#94887B]">
-            PARENTESCO
-          </div>
-          <div className="mb-5 flex gap-[9px]">
-            {RELATIONS.map((option) => {
-              const isActive = relation === option;
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  aria-pressed={isActive}
-                  onClick={() => setRelation(option)}
-                  className={`flex-1 rounded-full border-[1.5px] py-[11px] text-[14px] font-extrabold ${
-                    isActive
-                      ? "border-[#9FB8EC] bg-[#CCD8F4] text-[#4E72C8]"
-                      : "border-[#ECE0D0] bg-[#FFFDF9] text-[#6E6359]"
-                  }`}
-                >
-                  {option}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* CÓDIGO DE INVITACIÓN */}
-          <div className="mb-5 rounded-[16px] border-[1.5px] border-dashed border-[#E6D08A] bg-[#FBF1D6] p-[18px] text-center">
-            <div className="mb-2 text-[12px] font-extrabold tracking-[0.7px] text-[#A88526]">
-              CÓDIGO DE INVITACIÓN
-            </div>
-            <div className="font-heading text-[34px] font-semibold tracking-[7px] text-[#8A7234]">
-              {code}
-            </div>
-            <div className="mt-[6px] text-[13px] text-[#A88526]">
-              Vence en 7 días
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="flex w-full items-center justify-center gap-[9px] rounded-[14px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] py-[14px] text-[15.5px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,0.7)]"
-          >
-            <svg
-              width="19"
-              height="19"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#fff"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex w-full items-center justify-center rounded-[14px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] py-[14px] text-[15.5px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,0.7)]"
             >
-              <path d="m22 2-7 20-4-9-9-4z" />
-              <path d="M22 2 11 13" />
-            </svg>
-            Enviar invitación
-          </button>
-        </form>
+              Listo
+            </button>
+          </div>
+        ) : (
+          <form noValidate onSubmit={handleSubmit} className="px-[26px] py-[22px]">
+            {/* Informative box */}
+            <div className="mb-5 flex gap-[11px] rounded-[14px] bg-[#E3ECFB] px-4 py-[13px]">
+              <InfoIcon />
+              <span className="text-[13.5px] leading-[1.45] text-[#3F5694]">
+                Le enviaremos un correo con un código para que active su cuenta.
+                Solo verá el feed de {childName}.
+              </span>
+            </div>
+
+            {/* NOMBRE DEL PADRE/MADRE */}
+            <div className={labelClasses}>NOMBRE DEL PADRE/MADRE</div>
+            <input
+              ref={nameInputRef}
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Ej. Diego Fernández"
+              aria-invalid={Boolean(errors.name)}
+              className={`${inputClasses} mb-[18px]`}
+            />
+            {errors.name && (
+              <p className="-mt-[14px] mb-[14px] text-[12.5px] font-bold text-[#C5413A]">
+                {errors.name}
+              </p>
+            )}
+
+            {/* EMAIL */}
+            <div className={labelClasses}>EMAIL</div>
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="correo@ejemplo.com"
+              aria-invalid={Boolean(errors.email)}
+              className={`${inputClasses} mb-[18px]`}
+            />
+            {errors.email && (
+              <p className="-mt-[14px] mb-[14px] text-[12.5px] font-bold text-[#C5413A]">
+                {errors.email}
+              </p>
+            )}
+
+            {/* PARENTESCO */}
+            <div className="mb-[10px] block text-[12px] font-extrabold tracking-[0.7px] text-[#94887B]">
+              PARENTESCO
+            </div>
+            <div className="mb-5 flex gap-[9px]">
+              {RELATIONSHIP_OPTIONS.map((option) => {
+                const isActive = relation === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={isActive}
+                    onClick={() => setRelation(option.value)}
+                    className={`flex-1 rounded-full border-[1.5px] py-[11px] text-[14px] font-extrabold ${
+                      isActive
+                        ? "border-[#9FB8EC] bg-[#CCD8F4] text-[#4E72C8]"
+                        : "border-[#ECE0D0] bg-[#FFFDF9] text-[#6E6359]"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {generalError && (
+              <p className="mb-[14px] text-[12.5px] font-bold text-[#C5413A]">
+                {generalError}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={isPending}
+              className="flex w-full items-center justify-center gap-[9px] rounded-[14px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] py-[14px] text-[15.5px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,0.7)] disabled:opacity-70"
+            >
+              <svg
+                width="19"
+                height="19"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m22 2-7 20-4-9-9-4z" />
+                <path d="M22 2 11 13" />
+              </svg>
+              {isPending ? "Enviando…" : "Enviar invitación"}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
