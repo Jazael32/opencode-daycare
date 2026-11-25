@@ -1,6 +1,6 @@
 # SPEC 12 — Organización de componentes en carpetas por área y cursor pointer global
 
-> **Estado:** Aprobado
+> **Estado:** Verificado
 > **Depende de:** Ninguno (refactor transversal sobre los componentes que produjeron SPEC 01–06 y 09–11)
 > **Fecha:** 2026-11-24
 > **Objetivo:** Reorganizar los 15 componentes planos de `app/components/` en 4 subcarpetas por área (`kids/`, `login/`, `navigation/`, `posts/`) actualizando todos los imports, y agregar una regla CSS global en `globals.css` para que todo botón interactivo muestre el cursor pointer al hacer hover.
@@ -47,12 +47,12 @@ Ninguna estructura nueva: la app no cambia de comportamiento, solo de organizaci
 
 ## Acceptance criteria
 
-- [ ] `app/components/` no tiene `.tsx` sueltos; existen exactamente las 4 subcarpetas con 6 / 2 / 3 / 4 archivos.
-- [ ] Ningún import apunta a `@/app/components/<archivo>.tsx` sin subcarpeta (grep en 0 resultados).
-- [ ] `npx tsc --noEmit` y `npm run build` pasan.
-- [ ] `npm run lint` pasa.
-- [ ] Todo `<button>` habilitado y `[role="button"]` muestra `cursor: pointer` (incluidos "Vincular padre", "Nueva publicación", "Compartí un momento", "Cerrar sesión").
-- [ ] No hay diffs visuales distintos del cursor (comparando capturas de las pantallas contra `references/screenshots/`).
+- [x] `app/components/` no tiene `.tsx` sueltos; existen exactamente las 4 subcarpetas con 6 / 2 / 3 / 4 archivos.
+- [x] Ningún import apunta a `@/app/components/<archivo>.tsx` sin subcarpeta (grep en 0 resultados).
+- [x] `npx tsc --noEmit` y `npm run build` pasan.
+- [x] `npm run lint` pasa.
+- [x] Todo `<button>` habilitado y `[role="button"]` muestra `cursor: pointer` (incluidos "Vincular padre", "Nueva publicación", "Compartí un momento", "Cerrar sesión").
+- [x] No hay diffs visuales distintos del cursor (comparando capturas de las pantallas contra `references/screenshots/`).
 
 ## Decisions taken and discarded
 
