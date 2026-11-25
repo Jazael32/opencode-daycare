@@ -1,6 +1,6 @@
 # SPEC 11 — Invitaciones reales con Resend y registro del padre (`invitations` + `parent_children`)
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 08 — Tabla `users`, SPEC 09 — Autenticación y protección de rutas, SPEC 10 — Tablas `rooms` y `children`
 > **Fecha:** 2026-11-24
 > **Objetivo:** Crear las tablas `public.invitations` y `public.parent_children` con sus enums, policies y helpers, y conectar el flujo real de vinculación: el modal "Vincular padre" del perfil `/kids/[id]` inserta invitaciones y envía el correo con Resend (`resend`, desde `onboarding@resend.dev`), y `/activar-cuenta` registra al padre en Supabase Auth (código + email + contraseña doble con mínimo 8) aceptando la invitación y creando el vínculo padre ↔ niño.
