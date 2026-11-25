@@ -81,7 +81,9 @@ export async function updateSession(request: NextRequest) {
     return redirectTo(request, "/login", supabaseResponse);
   }
 
-  if (hasSession && pathname === "/login") {
+  // Signed-in users never see the auth screens (SPEC 09 for /login,
+  // SPEC 11 for /activar-cuenta).
+  if (hasSession && (pathname === "/login" || pathname === "/activar-cuenta")) {
     return redirectTo(request, "/", supabaseResponse);
   }
 
