@@ -76,6 +76,7 @@ Before the final response, run one reporting pass. If candidates remain, from th
 
 - /spec Usaremos esta Skill para crear las especificaciones.
 - /spec-impl Usaremos esta skill para hacer las implementaciones.
+- **db-migrator (subagente)**: durante `/spec-impl` (Phase 4), cuando un paso del plan de implementación involucre cambios de BD (tablas, columnas, enums, índices, RLS/policies, triggers, funciones, seeds, updates o deletes), delegarlo al subagente `db-migrator` pasándole la ruta del spec (`specs/NN-slug.md`), el número del paso y el texto del paso tal cual — no aplicar la migración directamente. Esperar su reporte (estado `ok` / `blocked (destructivo)` / `blocked (ambigüedad)`, migraciones aplicadas, archivos materializados y evidencia de post-verificación) antes de marcar el paso como completado y hacer el commit `spec-NN-step-MM`. El subagente no commitea ni edita el spec: eso queda en el agente primario.
 - **spec-verifier (subagente)**: después de implementar un spec, lánzalo para verificar y cerrar el ciclo. Verifica, corrige y marca los checks de "Criterios de aceptación" de `specs/*.md`:
   - Usa **Context7** para validar el código contra la documentación actual de Next.js.
   - Usa **Playwright** para validar las pantallas contra los mockups de `references/pantallas/` (las capturas van en `.playwright-mcp/`).
