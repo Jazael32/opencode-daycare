@@ -5,8 +5,9 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 // Public routes render without a session. Every other route is protected,
-// including routes added in the future.
-const publicRoutes = new Set(["/login", "/activar-cuenta"]);
+// including routes added in the future. `/pokemon` only calls the external
+// PokéAPI and never touches app data.
+const publicRoutes = new Set(["/login", "/activar-cuenta", "/pokemon"]);
 
 // `setAll` sends these headers so CDNs and reverse proxies never cache
 // responses that carry session cookies. A redirect must keep them too.

@@ -12,6 +12,7 @@
     }
   },
   "lsp": true,
+  "formatter": true,
   "references": {
     "db-schema": {
       "path": "../07-db-schema",
