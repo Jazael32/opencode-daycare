@@ -103,3 +103,7 @@ Before the final response, run one reporting pass. If candidates remain, from th
 ## Reglas de codigo
 
 - Usar codigo limpio, nombres, funciones variables, etc en ingles.
+
+## Reglas IMPORTANTES
+
+- Nunca hagas commit automaticamente, siempre permite que el usuario vea los cambios antes de hacer commit.
