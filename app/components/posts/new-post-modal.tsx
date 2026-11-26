@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type SyntheticEvent } from "react";
 import { kids as mockKids } from "@/app/lib/mock-kids";
 import { getStoredKids } from "@/app/lib/kid-storage";
 import type { Badge } from "@/app/lib/mock-feed";
@@ -85,7 +85,7 @@ export function NewPostModal({
     return nextErrors;
   }
 
-  function handleSubmit(event: FormEvent) {
+  function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextErrors = validate();
     if (Object.keys(nextErrors).length > 0) {

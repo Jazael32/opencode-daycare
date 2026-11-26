@@ -88,7 +88,7 @@ export function PokemonNavigator() {
               width={220}
               height={220}
               className="h-[220px] w-[220px] object-contain"
-              priority
+              preload
             />
           ) : (
             <span className="flex h-[220px] w-[220px] items-center justify-center rounded-2xl bg-photo-bg text-photo-ink">
@@ -130,7 +130,7 @@ export function PokemonNavigator() {
           disabled={!hasPrevious || isLoading}
           className="flex items-center gap-2 rounded-full bg-brand-soft px-5 py-2.5 text-[14px] font-extrabold text-brand-strong disabled:cursor-not-allowed disabled:opacity-40"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M15 18l-6-6 6-6" />
           </svg>
           Anterior
@@ -147,7 +147,7 @@ export function PokemonNavigator() {
           className="flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-[14px] font-extrabold text-surface disabled:cursor-not-allowed disabled:opacity-40"
         >
           Siguiente
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 6l6 6-6 6" />
           </svg>
         </button>

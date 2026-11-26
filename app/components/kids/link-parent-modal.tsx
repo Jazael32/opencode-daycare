@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition, type FormEvent } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+  useTransition,
+  type FormEvent,
+} from "react";
 
 import { createInvitation } from "@/app/kids/actions";
 import { RELATIONSHIP_OPTIONS, type Relationship } from "@/app/lib/relationship";
@@ -64,16 +71,19 @@ export function LinkParentModal({
     nameInputRef.current?.focus();
   }, []);
 
-  // Esc closes the modal without saving.
+  // Esc closes the modal without saving. onClose is wrapped in an Effect Event
+  // so a parent passing a new callback on each render doesn't re-subscribe the listener.
+  const onEscapeClose = useEffectEvent(() => onClose());
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        onClose();
+        onEscapeClose();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, []);
 
   function validate(): FieldErrors {
     const nextErrors: FieldErrors = {};

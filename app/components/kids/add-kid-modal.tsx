@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, useTransition, type FormEvent } from "react";
 import { createChild } from "@/app/kids/actions";
 import type { RoomRow } from "@/app/lib/kids-db";
 
@@ -50,7 +50,7 @@ export function AddKidModal({
   const [medicalNotes, setMedicalNotes] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [roomMenuOpen, setRoomMenuOpen] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
@@ -79,15 +79,15 @@ export function AddKidModal({
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (submitting) {
+    if (isPending) {
       return;
     }
 
-    setSubmitting(true);
     setErrors({});
     setFormError(null);
 
     // The action validates every field; the client only renders its answer.
+    // isPending stays true until the whole transition (including the await) ends.
     startTransition(async () => {
       const result = await createChild({
         fullName: name,
@@ -98,17 +98,19 @@ export function AddKidModal({
       });
 
       if (!result.ok) {
-        setSubmitting(false);
-        if (result.fieldErrors) {
-          setErrors({
-            name: result.fieldErrors.name,
-            birthDate: result.fieldErrors.birthDate,
-            room: result.fieldErrors.roomId,
-          });
-        }
-        if (result.error) {
-          setFormError(result.error);
-        }
+        // State updates after an await must be wrapped again to be Transitions.
+        startTransition(() => {
+          if (result.fieldErrors) {
+            setErrors({
+              name: result.fieldErrors.name,
+              birthDate: result.fieldErrors.birthDate,
+              room: result.fieldErrors.roomId,
+            });
+          }
+          if (result.error) {
+            setFormError(result.error);
+          }
+        });
         return;
       }
 
@@ -150,10 +152,10 @@ export function AddKidModal({
           <button
             type="submit"
             form="add-kid-form"
-            disabled={submitting}
+            disabled={isPending}
             className="text-[15px] font-extrabold text-[#D9583C] disabled:opacity-60"
           >
-            {submitting ? "Guardando…" : "Guardar"}
+            {isPending ? "Guardando…" : "Guardar"}
           </button>
         </div>
 
